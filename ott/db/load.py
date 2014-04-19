@@ -1,19 +1,14 @@
-from pyramid.config import Configurator
 from sqlalchemy import engine_from_config
+from pkg_resources import resource_filename
+from gtfsdb import Database
+from gtfsdb import Stop
 
-from .models import (
-    DBSession,
-    Base,
-    )
+def get_model(db, model):
+    return db.session.query(model)
 
+def main():
+    db = Database(url="sqlite:///gtfs.db")
+    stops = get_model(db, Stop).all()
+    for s in stops:
+        print s.stop_name
 
-def main(global_config, **settings):
-    """ This function returns a Pyramid WSGI application.
-    """
-    engine = engine_from_config(settings, 'sqlalchemy.')
-    DBSession.configure(bind=engine)
-    Base.metadata.bind = engine
-    config = Configurator(settings=settings)
-    config.add_route('home', '/')
-    config.scan()
-    return config.make_wsgi_app()
