@@ -1,9 +1,14 @@
+import datetime
 import logging
 log = logging.getLogger(__file__)
 
+
 from .response_base import DatabaseNotFound, ServerError, ResponseBase
+from .route_response import RouteResponse
 
 class StopListResponse(ResponseBase):
+    ''' List of StopResponse data objects ... both list and contents ready for marshaling into JSON
+    '''
     def __init__(self, stop_list, name, lon, lat):
         super(StopListResponse, self).__init__()
         self.stops = stop_list
@@ -14,7 +19,8 @@ class StopListResponse(ResponseBase):
 
 
 class StopResponse(ResponseBase):
-    '''
+    ''' Stop data object that is  ready for marshaling into JSON
+
     "stop_id":"7765",
     "name":"SW 6th & Jefferson",
     TODO "city":"Portland",
@@ -56,11 +62,16 @@ class StopResponse(ResponseBase):
 
         # process the list of routes serving the stop
         self.routes = []
-        self.has_routes = routes and len(routes) > 0
-        if self.has_routes:
-            for r in routes:
-                rs = RouteResponse(r, stop, session)
-                self.routes.append(rs)
+        print datetime.datetime.now()
+        #if stop.routes is not None:
+        if True:
+            print datetime.datetime.now()
+            for r in stop.routes:
+                #rs = RouteResponse(r, stop, session)
+                #self.routes.append(rs)
+                pass
+            print datetime.datetime.now()
+        print datetime.datetime.now()
 
         #self.alerts = AlertsResponse.get_stop_alerts(session, stop.stop_id)
         #self.has_alerts = self.alerts and len(self.alerts) > 0
