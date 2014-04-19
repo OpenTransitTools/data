@@ -14,6 +14,7 @@ requires = [
     'transaction',
     'gtfsdb',
     'psycopg2',
+    'simplejson'
 ]
 
 extras_require = dict(
