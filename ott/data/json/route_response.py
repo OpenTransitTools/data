@@ -31,20 +31,43 @@ class RouteResponse(ResponseBase):
         self.routelist_url = route.routelist_url
         self.arrival_url = route.arrival_url
 
-    def copy(self, route):
-        self.route_id = route.route_id
-        self.name = route.route_long_name
-        self.short_name = route.route_short_name
-        #self.sort_order = route.sort_order
-        #self.route_url = route.route_url
-        #self.routelist_url = route.routelist_url
-        #self.arrival_url = route.arrival_url
+    def copy(self, r):
+        self.name = r.route_name
+        self.route_id = r.route_id
+        self.short_name = r.route_short_name
+        self.sort_order = r.route_sort_order
+        #self.route_url = r.route_url
+        #self.routelist_url = r.routelist_url
+        #self.arrival_url = r.arrival_url
+
 
     def copy_dirs(self, dir0=None, dir1=None):
         self.direction_0 = dir0
         self.direction_1 = dir1
 
     def add_route_dirs(self, route):
+        ''' 
+        '''
+
+        # step 0: two direction name vars
+        dir0=None
+        dir1=None
+
+        # step 1: figure out what (if any) 'primary' direction names for this route exist in directions '0' and '1'
+        try:
+            for d in route.directions:
+                if d.direction_id == 0:
+                    dir0 = d.direction_name
+                elif d.direction_id == 1:
+                    dir1 = d.direction_name
+        except:
+            pass
+
+        # step 2: assign direction names (or default null values) to route
+        self.copy_dirs(dir0, dir1)
+
+
+    def old_add_route_dirs(self, route):
         # step 0: two direction name vars
         dir0=None
         dir1=None

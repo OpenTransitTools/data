@@ -61,12 +61,19 @@ class StopResponse(ResponseBase):
 
         # process the list of routes serving the stop
         self.routes = []
+        rte_cache = []
         '''
         if stop.routes is not None:
             for r in stop.routes:
                 rs = RouteResponse(r, stop, session)
                 self.routes.append(rs)
         '''
+        if stop.headsigns is not None:
+            for h in stop.headsigns:
+                if h[0].route_id not in rte_cache:
+                    rte_cache.append(h[0].route_id)
+                    rs = RouteResponse(h[0], stop, session)
+                    self.routes.append(rs)
 
         #self.alerts = AlertsResponse.get_stop_alerts(session, stop.stop_id)
         #self.has_alerts = self.alerts and len(self.alerts) > 0
