@@ -4,11 +4,15 @@ from gtfsdb import Database
 from gtfsdb import Stop
 
 from ott.data.json.stop_response import StopResponse
+from ott.data.json.route_response import RouteListResponse
 
 def get_model(db, model):
     return db.session.query(model)
 
 def main():
     db = Database(url="sqlite:///gtfs.db")
-    s = StopResponse.from_stop_id('2', db.session)
+    s  = StopResponse.from_stop_id('2', db.session)
+    rl = RouteListResponse.route_list(db.session)
     print s
+    print
+    print rl
