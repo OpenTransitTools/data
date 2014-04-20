@@ -32,7 +32,7 @@ if sys.version_info[:2] < (2, 7):
 
 
 setup(
-    name='ott.db',
+    name='ott.data',
     version='0.1.0',
     description='Open Transit Tools - OTT Database',
     long_description=README + '\n\n' + CHANGES,
@@ -53,9 +53,9 @@ setup(
     install_requires=requires,
     extras_require=extras_require,
     tests_require=requires,
-    test_suite="ott.db.tests",
+    test_suite="ott.data.tests",
     entry_points="""\
         [console_scripts]
-        load_db = ott.db.load:main
+        load_db = ott.data.db.load:main
     """,
 )
