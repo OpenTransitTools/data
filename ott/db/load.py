@@ -10,10 +10,7 @@ def get_model(db, model):
 
 def main():
     db = Database(url="sqlite:///gtfs.db")
-    stops = get_model(db, Stop).all()
-    for s in stops:
-        print s.stop_name
-        s = StopResponse.from_stop_obj(s, db.session)
-        print s
-        break
+    s = StopResponse.from_stop_id('2', db.session)
+    print s
+
 

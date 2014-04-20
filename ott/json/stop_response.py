@@ -1,4 +1,3 @@
-import datetime
 import logging
 log = logging.getLogger(__file__)
 
@@ -62,16 +61,12 @@ class StopResponse(ResponseBase):
 
         # process the list of routes serving the stop
         self.routes = []
-        print datetime.datetime.now()
-        #if stop.routes is not None:
-        if True:
-            print datetime.datetime.now()
+        '''
+        if stop.routes is not None:
             for r in stop.routes:
-                #rs = RouteResponse(r, stop, session)
-                #self.routes.append(rs)
-                pass
-            print datetime.datetime.now()
-        print datetime.datetime.now()
+                rs = RouteResponse(r, stop, session)
+                self.routes.append(rs)
+        '''
 
         #self.alerts = AlertsResponse.get_stop_alerts(session, stop.stop_id)
         #self.has_alerts = self.alerts and len(self.alerts) > 0
@@ -121,6 +116,8 @@ class StopResponse(ResponseBase):
     def from_stop_id(cls, stop_id, session, templates=None, distance=0):
         ''' make a StopResponse from a stop_id and session ... and maybe templates
         '''
+        from gtfsdb import Stop
+
         ret_val = None
         try:
             stop = session.query(Stop).filter(Stop.stop_id == stop_id).one()
