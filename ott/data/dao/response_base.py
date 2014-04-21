@@ -56,7 +56,7 @@ class ResponseBase(object):
         return ret_val
 
     def to_json(self, pretty=False):
-        return obj_to_json(self, pretty)
+        return self.obj_to_json(self, pretty)
 
     def from_json(self, str):
         return json.loads(str, object_hook=registry.object_hook)
