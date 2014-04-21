@@ -49,7 +49,7 @@ class RouteResponse(ResponseBase):
         #    self.arrival_url = self.format_template_from_dict(stop, route.arrival_url)
 
         self.route_id = route.route_id
-        self.name = route.rout_name
+        self.name = route.route_name
         self.short_name = route.short_name
         self.sort_order = route.sort_order
         self.route_url = route.route_url
