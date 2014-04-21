@@ -47,12 +47,16 @@ class ResponseBase(object):
     def from_dict(cls, dct):
         return cls(**dct)
 
-    def to_json(self, pretty=False):
+    @classmethod
+    def obj_to_json(cls, obj, pretty=False):
         if pretty:
-            ret_val = json.dumps(self, default=registry.default, indent=4, sort_keys=True)
+            ret_val = json.dumps(obj, default=registry.default, indent=4, sort_keys=True)
         else:
-            ret_val = json.dumps(self, default=registry.default)
+            ret_val = json.dumps(obj, default=registry.default)
         return ret_val
+
+    def to_json(self, pretty=False):
+        return obj_to_json(self, pretty)
 
     def from_json(self, str):
         return json.loads(str, object_hook=registry.object_hook)

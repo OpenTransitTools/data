@@ -3,8 +3,8 @@ from pkg_resources import resource_filename
 from gtfsdb import Database
 from gtfsdb import Stop
 
-from ott.data.json.stop_response import StopResponse
-from ott.data.json.route_response import RouteListResponse
+from ott.data.dao.stop_response import StopResponse
+from ott.data.dao.route_response import RouteListResponse
 
 def get_model(db, model):
     return db.session.query(model)
