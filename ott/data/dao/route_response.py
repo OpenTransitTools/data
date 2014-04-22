@@ -1,5 +1,5 @@
 from .response_base import ResponseBase
-#from ott.controller.services.model.alerts_response import AlertsResponse
+from .alerts_response import AlertsResponse
 
 
 class RouteListResponse(ResponseBase):
@@ -29,10 +29,11 @@ class RouteResponse(ResponseBase):
     '''
     def __init__(self, route, stop=None, session=None):
         super(RouteResponse, self).__init__()
+        #import pdb; pdb.set_trace()
         self.copy(route)
         self.add_route_dirs(route)
         self.alerts = []
-        #self.alerts = AlertsResponse.get_route_alerts(session, route.route_id)
+        self.alerts = AlertsResponse.get_route_alerts(session, route.route_id)
         self.has_alerts = self.alerts and len(self.alerts) > 0
 
 

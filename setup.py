@@ -12,8 +12,9 @@ requires = [
     'zope.sqlalchemy',
     'pyramid_tm',
     'transaction',
-    'gtfsdb',
     'psycopg2',
+    'gtfsdb',
+    'protobuf',
     'simplejson'
 ]
 
@@ -43,7 +44,7 @@ setup(
     ],
     author="Open Transit Tools",
     author_email="info@opentransittools.org",
-    dependency_links=('http://opentransittools.com',),
+    dependency_links=[],
     license="Mozilla-derived (http://opentransittools.com)",
     url='http://opentransittools.com',
     keywords='ott, otp, gtfs, gtfsdb, data, database, services, transit',
@@ -57,5 +58,6 @@ setup(
     entry_points="""\
         [console_scripts]
         load_db = ott.data.db.load:main
+        load_rt = ott.data.gtfsrdb.gtfsrdb:main
     """,
 )

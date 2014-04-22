@@ -4,6 +4,7 @@ log = logging.getLogger(__file__)
 
 from .response_base import DatabaseNotFound, ServerError, ResponseBase
 from .route_response import RouteResponse
+from .alerts_response import AlertsResponse
 
 class StopListResponse(ResponseBase):
     ''' List of StopResponse data objects ... both list and contents ready for marshaling into JSON
@@ -75,8 +76,8 @@ class StopResponse(ResponseBase):
                     rs = RouteResponse(h[0], stop, session)
                     self.routes.append(rs)
 
-        #self.alerts = AlertsResponse.get_stop_alerts(session, stop.stop_id)
-        #self.has_alerts = self.alerts and len(self.alerts) > 0
+        self.alerts = AlertsResponse.get_stop_alerts(session, stop.stop_id)
+        self.has_alerts = self.alerts and len(self.alerts) > 0
 
         if templates:
             self.arrival_url, self.has_arrival_url = templates.get_arrival_url(self)
