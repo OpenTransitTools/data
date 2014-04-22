@@ -6,6 +6,7 @@ from .base_dao import BaseDao
 from ..gtfsrdb import query
 from ott.utils import object_utils
 from ott.utils import date_utils
+from ott.utils import transit_utils
 
 class AlertsDao(BaseDao):
     def __init__(self):
@@ -45,7 +46,9 @@ class AlertsDao(BaseDao):
         ''' note: uses relationship to gtfsdb's Route table defined in model.py
         '''
         for n in alert.InformedEntities:
-            self.route_short_names.append(n.route.route_short_name)
+            short_name = transit_utils.make_short_name(n.route)
+            if short_name:
+                self.route_short_names.append(short_name)
 
     def init_via_alert(self, session, alert):
         ''' init this object via this 

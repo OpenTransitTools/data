@@ -98,23 +98,17 @@ class StopDao(BaseDao):
     def from_stop_obj(cls, stop, session, templates=None, distance=0):
         ''' make a StopDao from a stop object and session ... and maybe templates
         '''
-        ret_val = None
-        try:
-            # step 1: query db for stop amenity names
-            amenities = []
-            for f in stop.stop_features:
-                amenities.append(f.stop_feature_type.feature_name)
-            amenities = sorted(list(set(amenities)))  # sorted and distinct (set) list of attributes 
-    
-            # step 2: query db for route ids serving this stop...
-            routes = None
-            #route_ids = session.query(distinct(RouteStop.route_id)).filter(RouteStop.stop_id == stop.stop_id).all()
-            #route_ids = object_utils.strip_tuple_list(route_ids)
-            #routes = session.query(RouteOtt).filter(RouteOtt.route_id.in_(route_ids)).order_by(RouteOtt.sort_order).all()
-    
-            ret_val = StopDao(stop, amenities, routes, templates, distance, session)
-        except Exception, e:
-            log.warn(e)
+
+        # step 1: query db for stop amenity names
+        #  -TODO- cache this stuff???
+        amenities = []
+        for f in stop.stop_features:
+            amenities.append(f.stop_feature_type.feature_name)
+        amenities = sorted(list(set(amenities)))  # sorted and distinct (set) list of attributes 
+
+        # step 2: query db for route ids serving this stop...
+        routes = None
+        ret_val = StopDao(stop, amenities, routes, templates, distance, session)
 
         return ret_val
 
@@ -123,15 +117,9 @@ class StopDao(BaseDao):
     def from_stop_id(cls, stop_id, session, templates=None, distance=0, agency="TODO"):
         ''' make a StopDao from a stop_id and session ... and maybe templates
         '''
+        #import pdb; pdb.set_trace()
         from gtfsdb import Stop
-
-        ret_val = None
-        try:
-            stop = session.query(Stop).filter(Stop.stop_id == stop_id).one()
-            ret_val = cls.from_stop_obj(stop, session, templates, distance)
-        except Exception, e:
-            #import pdb; pdb.set_trace()
-            log.warn(e)
-
+        stop = session.query(Stop).filter(Stop.stop_id == stop_id).one()
+        ret_val = cls.from_stop_obj(stop, session, templates, distance)
         return ret_val
 

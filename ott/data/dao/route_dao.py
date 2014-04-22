@@ -91,14 +91,8 @@ class RouteDao(BaseDao):
     def from_route_id(cls, route_id, session, agency="TODO"):
         ''' make a RouteDao from a route_id and session
         '''
-        from gtfsdb import Route
         #import pdb; pdb.set_trace()
-
-        ret_val = None
-        try:
-            r = session.query(Route).filter(Route.route_id == route_id).one()
-            ret_val = RouteDao(r, session)
-        except Exception, e:
-            log.warn(e)
-
+        from gtfsdb import Route
+        r = session.query(Route).filter(Route.route_id == route_id).one()
+        ret_val = RouteDao(r, session)
         return ret_val
