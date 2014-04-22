@@ -149,6 +149,7 @@ class EntitySelector(Base):
     alert_id = Column(Integer, ForeignKey('alerts.oid'))
 
     # conditionally add relationship to gtfsdb's Route table
+    '''
     try:
         from gtfsdb.model.route import Route
         route = relationship(Route,
@@ -157,7 +158,7 @@ class EntitySelector(Base):
             uselist=False, viewonly=True)
     except:
         log.info("no gtfsdb seen, so no routes relationship")
-
+    '''
 
 class VehiclePosition(Base):
     __tablename__ = 'vehicle_positions'

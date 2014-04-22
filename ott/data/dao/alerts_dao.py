@@ -46,9 +46,12 @@ class AlertsDao(BaseDao):
         ''' note: uses relationship to gtfsdb's Route table defined in model.py
         '''
         for n in alert.InformedEntities:
-            short_name = transit_utils.make_short_name(n.route)
-            if short_name:
-                self.route_short_names.append(short_name)
+            try:
+                short_name = transit_utils.make_short_name(n.route)
+                if short_name:
+                    self.route_short_names.append(short_name)
+            except:
+                pass
 
     def init_via_alert(self, session, alert):
         ''' init this object via this 
