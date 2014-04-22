@@ -1,39 +1,42 @@
-from .response_base import ResponseBase
-from .alerts_response import AlertsResponse
+import logging
+log = logging.getLogger(__file__)
+
+from .base_dao import BaseDao
+from .alerts_dao import AlertsDao
 
 
-class RouteListResponse(ResponseBase):
-    ''' List of RouteResponse data objects ... both list and RouteResponse content ready for marshaling into JSON
+class RouteListDao(BaseDao):
+    ''' List of RouteDao data objects ... both list and RouteDao content ready for marshaling into JSON
     '''
     def __init__(self, routes):
         self.routes = routes
 
     @classmethod
     def route_list(cls, session):
-        ''' make a list of RouteResponse objects by query to the database
+        ''' make a list of RouteDao objects by query to the database
         '''
         ### TODO: list of BANNED ROUTES ...
         from gtfsdb.model.route import Route
         route_list = [] 
         routes = session.query(Route).order_by(Route.route_sort_order)
         for r in routes:
-            rte = RouteResponse(route=r, session=session)
+            rte = RouteDao(route=r, session=session)
             route_list.append(rte)
 
-        ret_val = RouteListResponse(route_list)
+        ret_val = RouteListDao(route_list)
         return ret_val
 
 
-class RouteResponse(ResponseBase):
-    ''' RouteResponse data object ready for marshaling into JSON
+class RouteDao(BaseDao):
+    ''' RouteDao data object ready for marshaling into JSON
     '''
-    def __init__(self, route, stop=None, session=None):
-        super(RouteResponse, self).__init__()
+    def __init__(self, route, session=None, stop=None):
+        super(RouteDao, self).__init__()
         #import pdb; pdb.set_trace()
         self.copy(route)
         self.add_route_dirs(route)
         self.alerts = []
-        self.alerts = AlertsResponse.get_route_alerts(session, route.route_id)
+        self.alerts = AlertsDao.get_route_alerts(session, route.route_id)
         self.has_alerts = self.alerts and len(self.alerts) > 0
 
 
@@ -83,3 +86,19 @@ class RouteResponse(ResponseBase):
         # step 2: assign direction names (or default null values) to route
         self.copy_dirs(dir0, dir1)
 
+
+    @classmethod
+    def from_route_id(cls, route_id, session, agency="TODO"):
+        ''' make a RouteDao from a route_id and session
+        '''
+        from gtfsdb import Route
+        #import pdb; pdb.set_trace()
+
+        ret_val = None
+        try:
+            r = session.query(Route).filter(Route.route_id == route_id).one()
+            ret_val = RouteDao(r, session)
+        except Exception, e:
+            log.warn(e)
+
+        return ret_val

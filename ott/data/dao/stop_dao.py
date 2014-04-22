@@ -1,16 +1,15 @@
 import logging
 log = logging.getLogger(__file__)
 
+from .base_dao import BaseDao
+from .route_dao import RouteDao
+from .alerts_dao import AlertsDao
 
-from .response_base import DatabaseNotFound, ServerError, ResponseBase
-from .route_response import RouteResponse
-from .alerts_response import AlertsResponse
-
-class StopListResponse(ResponseBase):
-    ''' List of StopResponse data objects ... both list and contents ready for marshaling into JSON
+class StopListDao(BaseDao):
+    ''' List of StopDao data objects ... both list and contents ready for marshaling into JSON
     '''
     def __init__(self, stop_list, name, lon, lat):
-        super(StopListResponse, self).__init__()
+        super(StopListDao, self).__init__()
         self.stops = stop_list
         self.count = len(stop_list)
         self.name  = name
@@ -18,7 +17,7 @@ class StopListResponse(ResponseBase):
         self.lat   = lat
 
 
-class StopResponse(ResponseBase):
+class StopDao(BaseDao):
     ''' Stop data object that is  ready for marshaling into JSON
 
     "stop_id":"7765",
@@ -51,7 +50,7 @@ class StopResponse(ResponseBase):
         {"route_id":1, "name":"1-Vermont", "route_url":"http://trimet.org/schedules/r001.htm", "arrival_url":"http://trimet.org/arrivals/tracker.html?locationID=7765&route=001"}
     '''
     def __init__(self, stop, amenities, routes, templates, distance, session=None):
-        super(StopResponse, self).__init__()
+        super(StopDao, self).__init__()
 
         #import pdb; pdb.set_trace()
         self.copy_basics(self.__dict__, stop)
@@ -66,17 +65,17 @@ class StopResponse(ResponseBase):
         '''
         if stop.routes is not None:
             for r in stop.routes:
-                rs = RouteResponse(r, stop, session)
+                rs = RouteDao(r, stop, session)
                 self.routes.append(rs)
         '''
         if stop.headsigns is not None:
             for h in stop.headsigns:
                 if h[0].route_id not in rte_cache:
                     rte_cache.append(h[0].route_id)
-                    rs = RouteResponse(h[0], stop, session)
+                    rs = RouteDao(h[0], session, stop)
                     self.routes.append(rs)
 
-        self.alerts = AlertsResponse.get_stop_alerts(session, stop.stop_id)
+        self.alerts = AlertsDao.get_stop_alerts(session, stop.stop_id)
         self.has_alerts = self.alerts and len(self.alerts) > 0
 
         if templates:
@@ -97,7 +96,7 @@ class StopResponse(ResponseBase):
 
     @classmethod
     def from_stop_obj(cls, stop, session, templates=None, distance=0):
-        ''' make a StopResponse from a stop object and session ... and maybe templates
+        ''' make a StopDao from a stop object and session ... and maybe templates
         '''
         ret_val = None
         try:
@@ -113,7 +112,7 @@ class StopResponse(ResponseBase):
             #route_ids = object_utils.strip_tuple_list(route_ids)
             #routes = session.query(RouteOtt).filter(RouteOtt.route_id.in_(route_ids)).order_by(RouteOtt.sort_order).all()
     
-            ret_val = StopResponse(stop, amenities, routes, templates, distance, session)
+            ret_val = StopDao(stop, amenities, routes, templates, distance, session)
         except Exception, e:
             log.warn(e)
 
@@ -121,8 +120,8 @@ class StopResponse(ResponseBase):
 
 
     @classmethod
-    def from_stop_id(cls, stop_id, session, templates=None, distance=0):
-        ''' make a StopResponse from a stop_id and session ... and maybe templates
+    def from_stop_id(cls, stop_id, session, templates=None, distance=0, agency="TODO"):
+        ''' make a StopDao from a stop_id and session ... and maybe templates
         '''
         from gtfsdb import Stop
 

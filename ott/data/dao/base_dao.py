@@ -1,3 +1,6 @@
+import logging
+log = logging.getLogger(__file__)
+
 import simplejson as json
 import calendar, datetime
 
@@ -31,7 +34,7 @@ class SerializerRegistry(object):
 registry = SerializerRegistry()
 
 @registry.add
-class ResponseBase(object):
+class BaseDao(object):
     def __init__(self):
         self.status_code = '200'
         self.status_message = None
@@ -71,7 +74,7 @@ class ResponseBase(object):
         return ret_val
 
 
-class DatabaseNotFound(ResponseBase):
+class DatabaseNotFound(BaseDao):
     def __init__(self):
         super(DatabaseNotFound, self).__init__()
         self.status_code = '404'
@@ -79,7 +82,7 @@ class DatabaseNotFound(ResponseBase):
         self.has_errors = True
 
 
-class ServerError(ResponseBase):
+class ServerError(BaseDao):
     def __init__(self):
         super(ServerError, self).__init__()
         self.status_code = '500'

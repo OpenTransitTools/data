@@ -2,14 +2,14 @@ import datetime
 import logging
 log = logging.getLogger(__file__)
 
-from .response_base import ResponseBase
+from .base_dao import BaseDao
 from ..gtfsrdb import query
 from ott.utils import object_utils
 from ott.utils import date_utils
 
-class AlertsResponse(ResponseBase):
+class AlertsDao(BaseDao):
     def __init__(self):
-        super(AlertsResponse, self).__init__()
+        super(AlertsDao, self).__init__()
         self.route_id = None
         self.alert_id = None
         self.stop_id  = None
@@ -64,7 +64,7 @@ class AlertsResponse(ResponseBase):
         #import pdb; pdb.set_trace()
         alerts = query.via_route_id(session, route_id, agency_id)
         for a in alerts:
-            r = AlertsResponse()
+            r = AlertsDao()
             r.init_via_alert(session, a)
             ret_val.append(r)
         return ret_val
@@ -77,7 +77,7 @@ class AlertsResponse(ResponseBase):
         ret_val = []
         alerts = query.via_stop_id(session, stop_id, agency_id)
         for a in alerts:
-            r = AlertsResponse()
+            r = AlertsDao()
             r.init_via_alert(session, a)
             ret_val.append(r)
         return ret_val
