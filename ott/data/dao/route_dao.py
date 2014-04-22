@@ -9,6 +9,7 @@ class RouteListDao(BaseDao):
     ''' List of RouteDao data objects ... both list and RouteDao content ready for marshaling into JSON
     '''
     def __init__(self, routes):
+        super(RouteListDao, self).__init__()
         self.routes = routes
 
     @classmethod
