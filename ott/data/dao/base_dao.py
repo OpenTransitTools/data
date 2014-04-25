@@ -73,6 +73,13 @@ class BaseDao(object):
             pass
         return ret_val
 
+    def set_alerts(self, alerts):
+        self.alerts = alerts
+        if self.alerts and len(self.alerts) > 0:
+            self.has_alerts = True
+        else:
+            self.has_alerts = False
+
 
 class DatabaseNotFound(BaseDao):
     def __init__(self):
