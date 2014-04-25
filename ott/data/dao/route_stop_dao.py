@@ -10,14 +10,14 @@ class RouteStopDao(BaseDao):
         the routes_stops are defined in created table in gtfsdb (e.g., gtfsdb loading logic requires
         that gtfs data have direction ids defined in the trip table). 
     '''
-    def __init__(self, route, direction, stops):
+    def __init__(self, route, stops, direction):
         super(RouteStopDao, self).__init__()
         self.route = route
+        self.stop_list = stops
         self.direction = direction
-        self.stops = stops
 
     @classmethod
-    def from_route_direction(cls, session, route_id, direction_id, agency="TODO"):
+    def from_route_direction(cls, session, route_id, direction_id, agency="TODO", detailed=False):
         ''' make a RouteStopsDao from route_id, direction_id and session
         '''
         ret_val = None
@@ -29,10 +29,11 @@ class RouteStopDao(BaseDao):
                            RouteStop.direction_id == direction_id
                      ).all()
 
-        if rs and len(rs) > 1 and rs[0].route:
-            if rs[0].route.stops:
-                route = RouteDao.from_route_orm(rs[0].route, agency)
-                stops = StopListDao.from_routestops_orm(rs, agency)
+        if rs and len(rs) > 1:
+            route = RouteDao.from_route_orm(rs[0].route, agency, detailed)
+            stops = StopListDao.from_routestops_orm(rs, agency, detailed)
+            # TODO: DirectionDao()
+            ret_val = RouteStopDao(route, stops, rs[0].direction_id)
 
         #ret_val = RouteStopDao(r, session)
         return ret_val

@@ -14,7 +14,7 @@ class RouteListDao(BaseDao):
         self.count = len(routes)
 
     @classmethod
-    def route_list(cls, session):
+    def route_list(cls, session, agency="TODO", detailed=True):
         ''' make a list of RouteDao objects by query to the database
         '''
         ### TODO: list of BANNED ROUTES ...
@@ -22,7 +22,7 @@ class RouteListDao(BaseDao):
         route_list = [] 
         routes = session.query(Route).order_by(Route.route_sort_order)
         for r in routes:
-            rte = RouteDao.from_route_orm(route=r)
+            rte = RouteDao.from_route_orm(route=r, agency=agency, detailed=detailed)
             route_list.append(rte)
 
         ret_val = RouteListDao(route_list)
@@ -72,22 +72,25 @@ class RouteDao(BaseDao):
 
 
     @classmethod
-    def from_route_orm(cls, route, agency="TODO"):
-        from sqlalchemy.orm import object_session
-        # TODO
-        #alerts = AlertsDao.get_route_alerts(object_session(route), route.route_id)
+    def from_route_orm(cls, route, agency="TODO", detailed=True):
         alerts = []
+
+        if detailed:
+            # TODO
+            from sqlalchemy.orm import object_session
+            #alerts = AlertsDao.get_route_alerts(object_session(route), route.route_id)
+
         ret_val = RouteDao(route, alerts)
         return ret_val
 
     @classmethod
-    def from_route_id(cls, session, route_id, agency="TODO"):
+    def from_route_id(cls, session, route_id, agency="TODO", detailed=True):
         ''' make a RouteDao from a route_id and session
         '''
         #import pdb; pdb.set_trace()
         from gtfsdb import Route
         route = session.query(Route).filter(Route.route_id == route_id).one()
-        return cls.from_route_orm(route, agency)
+        return cls.from_route_orm(route, agency=agency, detailed=detailed)
 
 
     def old_copy(self, route):
