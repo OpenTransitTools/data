@@ -26,6 +26,33 @@ class StopListDao(BaseDao):
             ret_val = StopListDao(stops)
         return ret_val
 
+    @classmethod
+    def nearest_stops(cls, session, lon, lat, limit=10, agency="TODO", detailed=False):
+        ''' make a StopListDao based on a route_stops object
+            
+        '''
+        ret_val = []
+
+        # step 1: make POINT(x,y)
+        point = num_utils.to_point(lon, lat) #point = 'POINT({0} {1})'.format(lon, lat))
+
+        # step 2: query database via geo routines for N of stops cloesst to the POINT  
+        from gtfsdb import Stop
+        closest = session.query(Stop).order_by(Stop.geom.distance(point)).limit(limit)
+
+        # step 3a: loop thru nearest N stops
+        for s in closest:
+            # step 3b: calculate distance 
+            dist = num_utils.distance_mi(s.stop_lat, stop.stop_lon, lat, lon)
+            
+            # step 3c: make stop...
+            stop = cls.from_stop_orm(stop=s, distance=dist, agency=agency, detailed=detailed)
+            ret_val.append(stop)
+
+        # step 4: sort list then return
+        ret_val.sort(key=lambda x: x.distance, reverse=False)
+        return ret_val
+
 
 class StopDao(BaseDao):
     ''' Stop data object that is  ready for marshaling into JSON
