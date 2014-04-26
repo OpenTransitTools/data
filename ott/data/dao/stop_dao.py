@@ -35,6 +35,7 @@ class StopListDao(BaseDao):
         ''' make a StopListDao based on a route_stops object
             @params: lon, lat, limit=10, name=None, agency="TODO", detailed=False): 
         '''
+        #import pdb; pdb.set_trace()
 
         # step 1: make POINT(x,y)
         point = geo_params.to_point()
@@ -108,7 +109,6 @@ class StopDao(BaseDao):
     def __init__(self, stop, amenities, routes, alerts=None, distance=0.0, order=0):
         super(StopDao, self).__init__()
 
-        #import pdb; pdb.set_trace()
         self.copy_basics(self.__dict__, stop)
         self.routes = routes
         self.distance = distance
