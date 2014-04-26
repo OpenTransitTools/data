@@ -1,17 +1,21 @@
 import logging
 log = logging.getLogger(__file__)
 
-from .base_dao import BaseDao
-from .route_dao import RouteDao
+from .base_dao   import BaseDao
+from .route_dao  import RouteDao
 from .alerts_dao import AlertsDao
+
+from ott.utils   import num_utils
+
 
 class StopListDao(BaseDao):
     ''' List of StopDao data objects ... both list and contents ready for marshaling into JSON
     '''
-    def __init__(self, stops):
+    def __init__(self, stops, name=None):
         super(StopListDao, self).__init__()
         self.stops = stops
         self.count = len(stops)
+        self.name  = name
 
     @classmethod
     def from_routestops_orm(cls, route_stops, agency="TODO", detailed=False):
@@ -27,31 +31,46 @@ class StopListDao(BaseDao):
         return ret_val
 
     @classmethod
-    def nearest_stops(cls, session, lon, lat, limit=10, agency="TODO", detailed=False):
+    def nearest_stops(cls, session, geo_params):
         ''' make a StopListDao based on a route_stops object
-            
+            @params: lon, lat, limit=10, name=None, agency="TODO", detailed=False): 
         '''
-        ret_val = []
 
         # step 1: make POINT(x,y)
-        point = num_utils.to_point(lon, lat) #point = 'POINT({0} {1})'.format(lon, lat))
+        point = geo_params.to_point()
 
         # step 2: query database via geo routines for N of stops cloesst to the POINT  
         from gtfsdb import Stop
-        closest = session.query(Stop).order_by(Stop.geom.distance(point)).limit(limit)
+        stops_orm = session.query(Stop).order_by(Stop.geom.distance(point)).limit(geo_params.limit)
 
         # step 3a: loop thru nearest N stops
-        for s in closest:
+        stops = []
+        for s in stops_orm:
             # step 3b: calculate distance 
-            dist = num_utils.distance_mi(s.stop_lat, stop.stop_lon, lat, lon)
-            
+            dist = num_utils.distance_mi(s.stop_lat, s.stop_lon, geo_params.lat, geo_params.lon)
+
             # step 3c: make stop...
-            stop = cls.from_stop_orm(stop=s, distance=dist, agency=agency, detailed=detailed)
-            ret_val.append(stop)
+            stop = StopDao.from_stop_orm(stop=s, distance=dist, agency=geo_params.agency, detailed=geo_params.detailed)
+            stops.append(stop)
 
         # step 4: sort list then return
-        ret_val.sort(key=lambda x: x.distance, reverse=False)
+        stops = cls.sort_list_by_distance(stops)
+        ret_val = StopListDao(stops, name=geo_params.name)
         return ret_val
+
+    @classmethod
+    def sort_list_by_distance(cls, stop_list, order=True):
+        ''' sort a python list [] by distance, and assign order
+        '''
+        # step 1: sort the list
+        stop_list.sort(key=lambda x: x.distance, reverse=False)
+
+        # step 2: assign order
+        if order:
+            for i, s in enumerate(stop_list):
+                s.order = i+1
+
+        return stop_list
 
 
 class StopDao(BaseDao):
