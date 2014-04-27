@@ -1,10 +1,16 @@
+import datetime
 import logging
 log = logging.getLogger(__file__)
 
 from .base_dao import BaseDao
 from .alerts_dao import AlertsDao
+from .headsign_dao import StopHeadsignDao
+
+from ott.utils import date_utils
 
 from gtfsdb import StopTime
+from gtfsdb import Trip
+
 
 class StopScheduleDao(BaseDao):
     ''' StopScheduleDao data object
@@ -27,34 +33,54 @@ class StopScheduleDao(BaseDao):
 
 
     @classmethod
-    def get_stop_schedule(cls, session, stop_id, date_time=None):
+    def get_stop_schedule(cls, session, stop_id, date=None):
         '''
         '''
-        if date_time is None:
-            date_time = datetime.datetime.now()
-    
-        q = session.query(StopTime)
-        q = q.filter_by(stop_id='2')
-        q = q.filter(StopTime.trip.has(Trip.universal_calendar.any(date=n)))
-        import pdb; pdb.set_trace()
-    
-        hs = []
-        ids = []
-        for s in q:
-            id = StopHeadsignDao.unique_id(s)
-            if id not in ids:
-                print id
-                h = StopHeadsignDao(s)
-                hs.append(hs)
-                print h.to_json()
-        
+        ret_val = None
 
-        q = session.query(StopTime).options(joinedload('trip'))
-        q = q.filter_by(stop_id=self.stop_id, )
-            for r in q:
-                headsign = r.stop_headsign or r.trip.trip_headsign
-                self._headsigns[(r.trip.route, headsign)] += 1
-        return self._headsigns
+        is_now = False
+        if date is None:
+            date = datetime.date.today()
+            is_now = True
+        now = datetime.datetime.now()
+
+        q = session.query(StopTime)
+        q = q.filter_by(stop_id=stop_id)
+        q = q.filter(StopTime.trip.has(Trip.universal_calendar.any(date=date)))
+
+        alerts = []
+        headsigns = []
+        stoptimes = {}
+        for st in q:
+            if cls.is_boarding_stop(st):
+                id = StopHeadsignDao.unique_id(st)
+                if not stoptimes.has_key(id):
+                    h = StopHeadsignDao(st)
+                    a = None
+                    # a = Alerts.make_from_blah(h.route_id, h.stop_id)
+                    if a: 
+                        alerts.push(a)
+                        h.has_alert = True
+                    headsigns.append(h)
+                    stoptimes[id] = []
+                time = cls.make_stop_time(st, id, now)
+                stoptimes[id].append(time)
+
+
+    @classmethod
+    def make_stop_time(cls, gtfs_stoptime, headsign_id, now):
+        ''' {"t":'12:33am', "h":'headsign_id;, "n":[E|N|L ... where E=Earlier Today, N=Now/Next, L=Later]}
+        '''
+        time = date_utils.military_to_english_time(gtfs_stoptime.departure_time)
+        stat = date_utils.now_time_code(gtfs_stoptime.departure_time, now)
+        ret_val = {"t":time, "h":headsign_id, "n":stat}
+        return ret_val
+
+
+###########################
+##### OLD CODE
+###########################
+
 
 
     @classmethod

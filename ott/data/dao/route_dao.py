@@ -79,6 +79,7 @@ class RouteDao(BaseDao):
         if detailed:
             # TODO
             #alerts = AlertsDao.get_route_alerts(object_session(route), route.route_id)
+            pass
 
         ret_val = RouteDao(route, alerts)
         return ret_val
