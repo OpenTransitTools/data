@@ -5,6 +5,8 @@ from .base_dao import BaseDao
 from .route_dao import RouteDao
 from .stop_dao import StopListDao
 
+from gtfsdb import RouteStop
+
 class RouteStopDao(BaseDao):
     ''' RouteStopsDao is a collection of a RouteDao, a DirectionDao and a list of StopListDao objects
         the routes_stops are defined in created table in gtfsdb (e.g., gtfsdb loading logic requires
@@ -23,7 +25,6 @@ class RouteStopDao(BaseDao):
         ret_val = None
 
         #import pdb; pdb.set_trace()
-        from gtfsdb import RouteStop
         rs = session.query(RouteStop).filter(
                            RouteStop.route_id == route_id,
                            RouteStop.direction_id == direction_id

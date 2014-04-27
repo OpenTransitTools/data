@@ -24,6 +24,19 @@ class StopScheduleDao(BaseDao):
             # sort headsigns
             pass
 
+
+    @classmethod
+    def get_stop_schedule(cls, session, stop_id, date):
+        from gtfsdb.model.stop_time import StopTime
+
+        q = session.query(StopTime).options(joinedload('trip'))
+        q = q.filter_by(stop_id=self.stop_id, )
+            for r in q:
+                headsign = r.stop_headsign or r.trip.trip_headsign
+                self._headsigns[(r.trip.route, headsign)] += 1
+        return self._headsigns
+
+
     @classmethod
     def add_headsign(cls, headsign, headsign_cache):
         id = str(headsign.id)

@@ -4,6 +4,8 @@ log = logging.getLogger(__file__)
 from .base_dao import BaseDao
 from .alerts_dao import AlertsDao
 
+from sqlalchemy.orm import object_session
+from gtfsdb import Route
 
 class RouteListDao(BaseDao):
     ''' List of RouteDao data objects ... both list and RouteDao content ready for marshaling into JSON
@@ -18,7 +20,6 @@ class RouteListDao(BaseDao):
         ''' make a list of RouteDao objects by query to the database
         '''
         ### TODO: list of BANNED ROUTES ...
-        from gtfsdb import Route
         route_list = [] 
         routes = session.query(Route).order_by(Route.route_sort_order)
         for r in routes:
@@ -77,7 +78,6 @@ class RouteDao(BaseDao):
 
         if detailed:
             # TODO
-            from sqlalchemy.orm import object_session
             #alerts = AlertsDao.get_route_alerts(object_session(route), route.route_id)
 
         ret_val = RouteDao(route, alerts)
@@ -88,7 +88,6 @@ class RouteDao(BaseDao):
         ''' make a RouteDao from a route_id and session
         '''
         #import pdb; pdb.set_trace()
-        from gtfsdb import Route
         route = session.query(Route).filter(Route.route_id == route_id).one()
         return cls.from_route_orm(route, agency=agency, detailed=detailed)
 
