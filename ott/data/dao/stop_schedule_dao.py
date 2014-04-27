@@ -4,6 +4,7 @@ log = logging.getLogger(__file__)
 from .base_dao import BaseDao
 from .alerts_dao import AlertsDao
 
+from gtfsdb import StopTime
 
 class StopScheduleDao(BaseDao):
     ''' StopScheduleDao data object
@@ -26,8 +27,27 @@ class StopScheduleDao(BaseDao):
 
 
     @classmethod
-    def get_stop_schedule(cls, session, stop_id, date):
-        from gtfsdb.model.stop_time import StopTime
+    def get_stop_schedule(cls, session, stop_id, date_time=None):
+        '''
+        '''
+        if date_time is None:
+            date_time = datetime.datetime.now()
+    
+        q = session.query(StopTime)
+        q = q.filter_by(stop_id='2')
+        q = q.filter(StopTime.trip.has(Trip.universal_calendar.any(date=n)))
+        import pdb; pdb.set_trace()
+    
+        hs = []
+        ids = []
+        for s in q:
+            id = StopHeadsignDao.unique_id(s)
+            if id not in ids:
+                print id
+                h = StopHeadsignDao(s)
+                hs.append(hs)
+                print h.to_json()
+        
 
         q = session.query(StopTime).options(joinedload('trip'))
         q = q.filter_by(stop_id=self.stop_id, )
