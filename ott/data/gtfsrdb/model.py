@@ -25,6 +25,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Boolean, Float
 from sqlalchemy.orm import relationship, backref
 
+from gtfsdb.model.route import Route
 
 Base = declarative_base()
 
@@ -151,7 +152,6 @@ class EntitySelector(Base):
     # conditionally add relationship to gtfsdb's Route table
     '''
     try:
-        from gtfsdb.model.route import Route
         route = relationship(Route,
             primaryjoin=Route.route_id==route_id,
             foreign_keys=(Route.route_id),
