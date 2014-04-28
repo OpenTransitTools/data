@@ -15,7 +15,9 @@ class StopHeadsignDao(BaseDao):
                 "headsign"  : "45th Ave",
                 "dir"       : "1",
                 "sort_order": 1,
-                "has_alert" : True
+                first_time  : '03:55:22',
+                last_time   : '26:11:00',
+                num_trips   : 14
             }
     '''
     def __init__(self, stop_time, has_alert=False):
@@ -25,7 +27,9 @@ class StopHeadsignDao(BaseDao):
         self.route_name = stop_time.trip.route.route_name
         self.headsign = self.get_headsign(stop_time)
         self.sort_order = stop_time.trip.route.route_sort_order
-        self.has_alert = has_alert
+        self.first_time = stop_time.departure_time
+        self.last_time = stop_time.departure_time
+        self.num_trips = 0
 
     @classmethod
     def get_headsign(cls, stop_time):
