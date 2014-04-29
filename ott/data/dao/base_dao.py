@@ -39,7 +39,7 @@ registry = SerializerRegistry()
 @registry.add
 class BaseDao(object):
     def __init__(self):
-        self.status_code = '200'
+        self.status_code = 200
         self.status_message = None
         self.has_errors = False
 
@@ -87,7 +87,7 @@ class BaseDao(object):
 class DatabaseNotFound(BaseDao):
     def __init__(self):
         super(DatabaseNotFound, self).__init__()
-        self.status_code = '404'
+        self.status_code = 404
         self.status_message = 'Data not found'
         self.has_errors = True
 
@@ -95,7 +95,7 @@ class DatabaseNotFound(BaseDao):
 class ServerError(BaseDao):
     def __init__(self):
         super(ServerError, self).__init__()
-        self.status_code = '500'
+        self.status_code = 500
         self.status_message = 'Server error ... please try again later'
         self.has_errors = True
 

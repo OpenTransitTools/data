@@ -8,10 +8,12 @@ from ott.utils import object_utils
 
 class GeoListDao(BaseDao):
     def __init__(self, results):
+        super(GeoListDao, self).__init__()
         self.results = results
 
 class GeoDao(BaseDao):
     def __init__(self, name, lat, lon, city, stop_id, type, type_name, score):
+        super(GeoDao, self).__init__()
         log.debug("create an instance of {0}".format(self.__class__.__name__))
         self.name = html_utils.html_escape(name)
         self.city = html_utils.html_escape(city)
