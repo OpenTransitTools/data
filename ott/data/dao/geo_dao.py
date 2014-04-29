@@ -23,7 +23,7 @@ class GeoDao(BaseDao):
         self.score = score
 
     @classmethod
-    def make_geo_response(cls, doc):
+    def make_geo_dao(cls, doc):
         name = html_utils.html_escape(doc['name'])
         city = object_utils.safe_dict_val(doc, 'city', '').title()
         lat  = doc['lat']

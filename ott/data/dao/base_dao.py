@@ -88,7 +88,7 @@ class DatabaseNotFound(BaseDao):
     def __init__(self):
         super(DatabaseNotFound, self).__init__()
         self.status_code = '404'
-        self.status_message = 'Data Not Found'
+        self.status_message = 'Data not found'
         self.has_errors = True
 
 
@@ -96,7 +96,7 @@ class ServerError(BaseDao):
     def __init__(self):
         super(ServerError, self).__init__()
         self.status_code = '500'
-        self.status_message = 'Internal Server Error'
+        self.status_message = 'Server error ... please try again later'
         self.has_errors = True
 
 
