@@ -57,7 +57,6 @@ setup(
     test_suite="ott.data.tests",
     entry_points="""\
         [console_scripts]
-        load_db = ott.data.db.load:main
         load_rt = ott.data.gtfsrdb.gtfsrdb:main
     """,
 )
