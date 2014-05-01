@@ -3,8 +3,7 @@ log = logging.getLogger(__file__)
 
 from sqlalchemy import and_
 
-from .model import EntitySelector
-from .model import Alert
+from . import EntitySelector
 
 '''
   https://github.com/mattwigway/gtfsrdb

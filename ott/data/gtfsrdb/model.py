@@ -18,14 +18,10 @@
 
 # Authors:
 # Matt Conway: main code
-import logging
-log = logging.getLogger(__name__)
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Boolean, Float
 from sqlalchemy.orm import relationship, backref
-
-from gtfsdb.model.route import Route
 
 Base = declarative_base()
 
@@ -108,7 +104,7 @@ class StopTimeUpdate(Base):
 
     # Link it to the TripUpdate
     trip_update_id = Column(Integer, ForeignKey('trip_updates.oid'))
-
+    
     # The .TripUpdate is done by the backref in TripUpdate
 
 class Alert(Base):
@@ -136,6 +132,7 @@ class EntitySelector(Base):
     oid = Column(Integer, primary_key=True)
 
     agency_id = Column(String(15))
+
     route_id = Column(String(10))
 
     route_type = Column(Integer)
@@ -148,17 +145,6 @@ class EntitySelector(Base):
     trip_start_date = Column(String(10))
 
     alert_id = Column(Integer, ForeignKey('alerts.oid'))
-
-    # conditionally add relationship to gtfsdb's Route table
-    '''
-    try:
-        route = relationship(Route,
-            primaryjoin=Route.route_id==route_id,
-            foreign_keys=(Route.route_id),
-            uselist=False, viewonly=True)
-    except:
-        log.info("no gtfsdb seen, so no routes relationship")
-    '''
 
 class VehiclePosition(Base):
     __tablename__ = 'vehicle_positions'
