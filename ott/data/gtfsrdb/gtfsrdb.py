@@ -96,13 +96,6 @@ if opts.vehiclePositions == None:
 if opts.schema:
     model.add_schema(opts.schema)
 
-    ## NOTE / TODO (FXP 01.20.14):
-    ## need this due to dependencies in gtfsrdb.model.py (ROUTE_OTT, etc...) 
-    ## but if we refactor that to make said dependency optional, then we'd need to make this optional too...
-    ## maybe just detect if gtfsdb.model exits in eggs / memory, and that's the switch to include / FK / etc...
-    from gtfsdb.model.base import Base as BB
-    model.add_schema(opts.schema, BB.__subclasses__())
-
 
 # Connect to the database (and implicitly handle any non-default schema)
 engine = create_engine(opts.dsn, echo=opts.verbose)

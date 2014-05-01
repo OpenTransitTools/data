@@ -58,5 +58,6 @@ setup(
     entry_points="""\
         [console_scripts]
         load_rt = ott.data.gtfsrdb.gtfsrdb:main
+        route_alerts = ott.data.dao.alerts_dao:main
     """,
 )

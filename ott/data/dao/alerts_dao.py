@@ -8,6 +8,23 @@ from ott.utils import object_utils
 from ott.utils import date_utils
 from ott.utils import transit_utils
 
+class AlertsListDao(BaseDao):
+    def __init__(self, alerts):
+        super(AlertsListDao, self).__init__()
+        self.routes = alerts
+        self.count = len(alerts)
+
+    @classmethod
+    def get_route_alerts(cls, session, route_id, agency_id='NotUsed-AssumesSingleAgencyAlaTriMet'):
+        alerts = AlertsDao.get_route_alerts(session, route_id, agency_id)
+        return AlertsListDao(alerts)
+
+    @classmethod
+    def get_stop_alerts(cls, session, stop_id, agency_id='NotUsed-AssumesSingleAgencyAlaTriMet'):
+        alerts = AlertsDao.get_stop_alerts(session, stop_id, agency_id)
+        return AlertsListDao(alerts)
+
+
 class AlertsDao(BaseDao):
     def __init__(self):
         super(AlertsDao, self).__init__()
@@ -87,3 +104,9 @@ class AlertsDao(BaseDao):
             r.init_via_alert(session, a)
             ret_val.append(r)
         return ret_val
+
+def main():
+    from ott.utils.db_utils import db_gtfs_rt
+    session, engine = db_gtfs_rt()
+    a = AlertsListDao.get_route_alerts(session, '12')
+    print(a.to_json(True))
