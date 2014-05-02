@@ -59,14 +59,14 @@ def add_schema(schema, data_classes=None):
 
 class TripUpdate(Base):
     __tablename__ = 'trip_updates'
-    oid = Column(Integer, primary_key=True)
+    oid = Column(Integer, primary_key=True, index=True)
 
     # This replaces the TripDescriptor message
     # TODO: figure out the relations
-    trip_id = Column(String(10))
-    route_id = Column(String(10))
+    trip_id = Column(String(10), index=True)
+    route_id = Column(String(10), index=True)
     trip_start_time = Column(String(8))
-    trip_start_date = Column(String(10))
+    trip_start_date = Column(String(10), index=True)
     # Put in the string value not the enum
     # TODO: add a domain
     schedule_relationship = Column(String(9))
@@ -83,11 +83,11 @@ class TripUpdate(Base):
 
 class StopTimeUpdate(Base):
     __tablename__ = 'stop_time_updates'
-    oid = Column(Integer, primary_key=True)
+    oid = Column(Integer, primary_key=True, index=True)
 
     # TODO: Fill one from the other
     stop_sequence = Column(Integer)
-    stop_id = Column(String(10))
+    stop_id = Column(String(10), index=True)
 
     # Collapsed StopTimeEvent
     arrival_delay = Column(Integer)
@@ -110,11 +110,11 @@ class StopTimeUpdate(Base):
 class Alert(Base):
     __tablename__ = 'alerts'
 
-    oid = Column(Integer, primary_key=True)
+    oid = Column(Integer, primary_key=True, index=True)
 
     # Collapsed TimeRange
     start = Column(Integer)
-    end = Column(Integer)    
+    end = Column(Integer)
 
     # Add domain
     cause = Column(String(20))
@@ -129,11 +129,10 @@ class Alert(Base):
 
 class EntitySelector(Base):
     __tablename__ = 'entity_selectors'
-    oid = Column(Integer, primary_key=True)
+    oid = Column(Integer, primary_key=True, index=True)
 
-    agency_id = Column(String(15))
-
-    route_id = Column(String(10))
+    agency_id = Column(String(15), index=True)
+    route_id = Column(String(10), index=True)
 
     route_type = Column(Integer)
     stop_id = Column(String(10))
@@ -142,13 +141,13 @@ class EntitySelector(Base):
     trip_id = Column(String(10))
     trip_route_id = Column(String(10))
     trip_start_time = Column(String(8))
-    trip_start_date = Column(String(10))
+    trip_start_date = Column(String(10), index=True)
 
     alert_id = Column(Integer, ForeignKey('alerts.oid'))
 
 class VehiclePosition(Base):
     __tablename__ = 'vehicle_positions'
-    oid = Column(Integer, primary_key=True)
+    oid = Column(Integer, primary_key=True, index=True)
 
     # This replaces the TripDescriptor message
     # TODO: figure out the relations
