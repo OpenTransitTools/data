@@ -37,8 +37,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from urllib2 import urlopen
 from . import gtfs_realtime_pb2
+from . import alerts  
 from . import model
+from utils import getTrans
 from .model import *
+
 
 p = OptionParser()
 p.add_option('-t', '--trip-updates', dest='tripUpdates', default=None, 
@@ -103,6 +106,7 @@ engine = create_engine(opts.dsn, echo=opts.verbose)
 # sessionmaker returns a class
 session = sessionmaker(bind=engine)()
 
+
 # Check if it has the tables
 # Base from model.py
 for table in Base.metadata.tables.keys():
@@ -114,22 +118,6 @@ for table in Base.metadata.tables.keys():
             print 'Missing table %s! Use -c to create it.' % table
             exit(1)
 
-
-# Get a specific translation from a TranslatedString
-def getTrans(string, lang):
-    # If we don't find the requested language, return this
-    untranslated = None
-
-    # single translation, return it
-    if len(string.translation) == 1:
-        return string.translation[0].text
-
-    for t in string.translation:
-        if t.language == lang:
-            return t.text
-        if t.language == None:
-            untranslated = t.text
-    return untranslated
 
 try:
     while True:
@@ -196,47 +184,8 @@ try:
                     session.add(dbtu)
 
             if opts.alerts:
-                fm = gtfs_realtime_pb2.FeedMessage()
-                fm.ParseFromString(
-                    urlopen(opts.alerts).read()
-                    )
+                alerts.make_alert(session, gtfs_realtime_pb2, opts)
 
-                # Convert this a Python object, and save it to be placed into each
-                # trip_update
-                timestamp = datetime.datetime.utcfromtimestamp(fm.header.timestamp)
-
-                # Check the feed version
-                if fm.header.gtfs_realtime_version != u'1.0':
-                    print 'Warning: feed version has changed: found %s, expected 1.0' % fm.header.gtfs_realtime_version
-
-                    print 'Adding %s alerts' % len(fm.entity)
-                    for entity in fm.entity:
-                        alert = entity.alert
-                        dbalert = Alert(
-                            start = alert.active_period[0].start,
-                            end = alert.active_period[0].end,
-                            cause = alert.DESCRIPTOR.enum_types_by_name['Cause'].values_by_number[alert.cause].name,
-                            effect = alert.DESCRIPTOR.enum_types_by_name['Effect'].values_by_number[alert.effect].name,
-                            url = getTrans(alert.url, opts.lang),
-                            header_text = getTrans(alert.header_text, opts.lang),
-                            description_text = getTrans(alert.description_text,
-                                                        opts.lang)
-                            )
-
-                        session.add(dbalert)
-                        for ie in alert.informed_entity:
-                            dbie = EntitySelector(
-                                agency_id = ie.agency_id,
-                                route_id = ie.route_id,
-                                route_type = ie.route_type,
-                                stop_id = ie.stop_id,
-
-                                trip_id = ie.trip.trip_id,
-                                trip_route_id = ie.trip.route_id,
-                                trip_start_time = ie.trip.start_time,
-                                trip_start_date = ie.trip.start_date)
-                            session.add(dbie)
-                            dbalert.InformedEntities.append(dbie)
             if opts.vehiclePositions:
                 fm = gtfs_realtime_pb2.FeedMessage()
                 fm.ParseFromString(

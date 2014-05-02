@@ -115,6 +115,8 @@ class Alert(Base):
     # Collapsed TimeRange
     start = Column(Integer)
     end = Column(Integer)
+    is_future = Column(Boolean, index=True, default=False)
+    is_past = Column(Boolean, index=True, default=False)
 
     # Add domain
     cause = Column(String(20))
@@ -123,6 +125,10 @@ class Alert(Base):
     url = Column(String(300))
     header_text = Column(String(80))
     description_text = Column(String(4000))
+
+    # FXP added
+    route_ids = Column(String(500))
+    route_short_names = Column(String(1000))
 
     InformedEntities = relationship('EntitySelector', backref='Alert')
 

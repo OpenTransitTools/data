@@ -6,6 +6,7 @@ from .alerts_dao import AlertsDao
 
 from ott.utils import object_utils
 
+
 class StopHeadsignDao(BaseDao):
     ''' List of StopHeadsignDao data objects
             "0AI3Mk6FErSH4Q==" : {

@@ -8,6 +8,8 @@ from ott.utils import object_utils
 from ott.utils import date_utils
 from ott.utils import transit_utils
 
+from gtfsdb import Route
+
 class AlertsListDao(BaseDao):
     def __init__(self, alerts):
         super(AlertsListDao, self).__init__()
@@ -62,13 +64,26 @@ class AlertsDao(BaseDao):
     def set_short_names(self, session, alert):
         ''' note: uses relationship to gtfsdb's Route table defined in model.py
         '''
-        for n in alert.InformedEntities:
-            try:
-                short_name = transit_utils.make_short_name(n.route)
-                if short_name:
-                    self.route_short_names.append(short_name)
-            except:
-                pass
+
+        # step 1: get all of the route ids
+        ids = []
+        for ie in alert.InformedEntities:
+            if ie and ie.route_id:
+                ids.append(ie.route_id)
+
+        # step 2: get the list of gtfsdb Routes base on those route ids
+        routes = []
+        try:
+            routes = session.query(Route).filter(Route.route_id._in(ids)).order_by(Route.route_sort_order)
+        except:
+            pass
+
+        # step 3: get the pretty short name for this route
+        for r in routes:
+            short_name = transit_utils.make_short_name(self.route_short_names)
+            if short_name and short_name not in self.route_short_names:
+                self.route_short_names.append(short_name)
+
 
     def init_via_alert(self, session, alert):
         ''' init this object via this 
@@ -76,7 +91,21 @@ class AlertsDao(BaseDao):
         object_utils.update_object(self, src=alert)
         object_utils.update_object(self, src=alert.Alert)
         self.set_dates(alert.Alert.start, alert.Alert.end)
-        self.set_short_names(session, alert.Alert)
+        #self.set_short_names(session, alert.Alert)
+
+
+    @classmethod
+    def get_route_alerts_via_orm(cls, route):
+        ''' query GTFSrDB, and return a list of AlertResponse objects for the route
+        '''
+        ret_val = []
+        #import pdb; pdb.set_trace()
+        alerts = query.via_route_id(session, route_id, agency_id)
+        for a in alerts:
+            r = AlertsDao()
+            r.init_via_alert(session, a)
+            ret_val.append(r)
+        return ret_val
 
 
     @classmethod
