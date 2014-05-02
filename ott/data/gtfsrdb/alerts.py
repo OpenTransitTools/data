@@ -3,15 +3,18 @@ import time
 from urllib2 import urlopen
 
 from . import model
-from utils import get_translation
-from utils import get_gtfs_db
+from .utils import get_translation
+from .utils import get_gtfs_db
 
 
 def check_feed(fm):
     ''' Check the feed version
     '''
-    if fm.header.gtfs_realtime_version != u'1.0' or fm.header.gtfs_realtime_version != u'1':
-        print 'Warning: feed version has changed: found {0}, expected 1.0'.format(fm.header.gtfs_realtime_version)
+    #import pdb; pdb.set_trace()
+    #print fm
+    version = fm.header.gtfs_realtime_version
+    if version != u'1.0' or version != u'1':
+        print 'Warning: feed version has changed: found {0}, expected 1.0'.format(version)
 
 def make_pretty_short_name(r):
     ''' override me ... I'm TriMet specific (e.g., MAX, WES)
@@ -53,8 +56,8 @@ def make_alert(session, pb, opts):
     ''' will make a gtfsrdb Alert and add it to the session
     '''
     fm = pb.FeedMessage()
-    check_feed(fm)
     fm.ParseFromString(urlopen(opts.alerts).read())
+    check_feed(fm)
 
     now = datetime.datetime.now()
     now_secs = time.mktime(now.timetuple())
@@ -65,11 +68,20 @@ def make_alert(session, pb, opts):
 
         start = alert.active_period[0].start
         end = alert.active_period[0].end
-        
+
+        # figure out past & future ... and make sure
+        past = False
+        future = False
+        if start > 1000000000 and start > now_secs:
+            future = True
+        elif end > 1000000000 and end < now_secs:
+            past = True
 
         alert_orm = model.Alert(
             start = start,
             end = end,
+            is_past = past,
+            is_future = future,
             cause = alert.DESCRIPTOR.enum_types_by_name['Cause'].values_by_number[alert.cause].name,
             effect = alert.DESCRIPTOR.enum_types_by_name['Effect'].values_by_number[alert.effect].name,
             url = get_translation(alert.url, opts.lang),
@@ -84,7 +96,7 @@ def make_alert(session, pb, opts):
                     route_id = ie.route_id,
                     route_type = ie.route_type,
                     stop_id = ie.stop_id,
-    
+
                     trip_id = ie.trip.trip_id,
                     trip_route_id = ie.trip.route_id,
                     trip_start_time = ie.trip.start_time,
