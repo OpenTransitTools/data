@@ -5,8 +5,11 @@ from .base_dao   import BaseDao
 from .route_dao  import RouteDao
 from .alerts_dao import AlertsDao
 
+import copy
+
 from gtfsdb import Stop
-Stop.make_geom_lazy()
+#  make_geom_lazy will screw up nearest_stops
+#Stop.make_geom_lazy()
 
 from ott.utils   import num_utils
 

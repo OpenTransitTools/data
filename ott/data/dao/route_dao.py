@@ -17,7 +17,7 @@ class RouteListDao(BaseDao):
         self.count = len(routes)
 
     @classmethod
-    def route_list(cls, session, agency="TODO", detailed=True):
+    def route_list(cls, session, agency="TODO", detailed=False):
         ''' make a list of RouteDao objects by query to the database
         '''
         ### TODO: list of BANNED ROUTES ...
