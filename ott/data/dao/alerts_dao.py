@@ -41,7 +41,8 @@ class AlertsDao(BaseDao):
         self.effect = None
         self.start  = None
         self.end    = None
-        self.is_current        = False
+        self.is_past = False
+        self.is_future = False
         self.pretty_start_date = None
         self.pretty_start_time = None
         self.pretty_end_date   = None
@@ -97,6 +98,7 @@ class AlertsDao(BaseDao):
             r = AlertsDao()
             r.init_via_alert(session, a)
             ret_val.append(r)
+        ret_val.sort(key=lambda x: x.start, reverse=False)
         return ret_val
 
 
