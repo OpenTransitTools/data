@@ -5,6 +5,9 @@ from .base_dao   import BaseDao
 from .route_dao  import RouteDao
 from .alerts_dao import AlertsDao
 
+from gtfsdb import Stop
+Stop.make_geom_lazy()
+
 from ott.utils   import num_utils
 
 
@@ -41,7 +44,6 @@ class StopListDao(BaseDao):
         point = geo_params.to_point()
 
         # step 2: query database via geo routines for N of stops cloesst to the POINT  
-        from gtfsdb import Stop
         stops_orm = session.query(Stop).order_by(Stop.geom.distance(point)).limit(geo_params.limit)
 
         # step 3a: loop thru nearest N stops
@@ -182,7 +184,6 @@ class StopDao(BaseDao):
         ''' make a StopDao from a stop_id and session ... and maybe templates
         '''
         #import pdb; pdb.set_trace()
-        from gtfsdb import Stop
         stop = session.query(Stop).filter(Stop.stop_id == stop_id).one()
         ret_val = cls.from_stop_orm(stop, distance, agency=agency, detailed=detailed)
         return ret_val

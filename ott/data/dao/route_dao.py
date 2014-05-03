@@ -6,6 +6,7 @@ from .alerts_dao import AlertsDao
 
 from sqlalchemy.orm import object_session
 from gtfsdb import Route
+Route.make_geom_lazy()
 
 class RouteListDao(BaseDao):
     ''' List of RouteDao data objects ... both list and RouteDao content ready for marshaling into JSON
@@ -20,7 +21,7 @@ class RouteListDao(BaseDao):
         ''' make a list of RouteDao objects by query to the database
         '''
         ### TODO: list of BANNED ROUTES ...
-        route_list = [] 
+        route_list = []
         routes = session.query(Route).order_by(Route.route_sort_order)
         for r in routes:
             rte = RouteDao.from_route_orm(route=r, agency=agency, detailed=detailed)
