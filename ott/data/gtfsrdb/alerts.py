@@ -59,9 +59,6 @@ def make_alert(session, pb, opts):
     fm.ParseFromString(urlopen(opts.alerts).read())
     check_feed(fm)
 
-    now = datetime.datetime.now()
-    now_secs = time.mktime(now.timetuple())
-
     print 'Adding %s alerts' % len(fm.entity)
     for entity in fm.entity:
         alert = entity.alert
@@ -69,19 +66,9 @@ def make_alert(session, pb, opts):
         start = alert.active_period[0].start
         end = alert.active_period[0].end
 
-        # figure out past & future ... and make sure
-        past = False
-        future = False
-        if start > 1000000000 and start > now_secs:
-            future = True
-        elif end > 1000000000 and end < now_secs:
-            past = True
-
         alert_orm = model.Alert(
             start = start,
             end = end,
-            is_past = past,
-            is_future = future,
             cause = alert.DESCRIPTOR.enum_types_by_name['Cause'].values_by_number[alert.cause].name,
             effect = alert.DESCRIPTOR.enum_types_by_name['Effect'].values_by_number[alert.effect].name,
             url = get_translation(alert.url, opts.lang),

@@ -46,43 +46,23 @@ class AlertsDao(BaseDao):
         self.pretty_start_time = None
         self.pretty_end_date   = None
         self.pretty_end_time   = None
-        self.route_short_names = []
+        self.route_short_names = None
+        self.route_ids         = None
 
     def set_dates(self, start, end):
         self.start = date_utils.make_date_from_timestamp(start)
         self.pretty_start_date = date_utils.pretty_date(self.start)
         self.pretty_start_time = date_utils.pretty_time(self.start)
 
-        end = date_utils.make_date_from_timestamp(end)
-        if type(end) is datetime and end > start:
-            self.end = end
-            self.pretty_end_date = date_utils.pretty_date(self.end)
-            self.pretty_end_time = date_utils.pretty_time(self.end)
+        self.is_future = date_utils.is_future(start)
+        self.is_past = date_utils.is_past(end)
 
-        self.is_current = date_utils.is_date_between(self.start, self.end)
-
-    def set_short_names(self, session, alert):
-        ''' note: uses relationship to gtfsdb's Route table defined in model.py
-        '''
-
-        # step 1: get all of the route ids
-        ids = []
-        for ie in alert.InformedEntities:
-            if ie and ie.route_id:
-                ids.append(ie.route_id)
-
-        # step 2: get the list of gtfsdb Routes base on those route ids
-        routes = []
-        try:
-            routes = session.query(Route).filter(Route.route_id._in(ids)).order_by(Route.route_sort_order)
-        except:
-            pass
-
-        # step 3: get the pretty short name for this route
-        for r in routes:
-            short_name = transit_utils.make_short_name(self.route_short_names)
-            if short_name and short_name not in self.route_short_names:
-                self.route_short_names.append(short_name)
+        if end > 1000:
+            end = date_utils.make_date_from_timestamp(end)
+            if type(end) is datetime and end > start:
+                self.end = end
+                self.pretty_end_date = date_utils.pretty_date(self.end)
+                self.pretty_end_time = date_utils.pretty_time(self.end)
 
 
     def init_via_alert(self, session, alert):
@@ -91,8 +71,6 @@ class AlertsDao(BaseDao):
         object_utils.update_object(self, src=alert)
         object_utils.update_object(self, src=alert.Alert)
         self.set_dates(alert.Alert.start, alert.Alert.end)
-        #self.set_short_names(session, alert.Alert)
-
 
     @classmethod
     def get_route_alerts_via_orm(cls, route):

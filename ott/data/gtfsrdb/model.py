@@ -113,10 +113,8 @@ class Alert(Base):
     oid = Column(Integer, primary_key=True, index=True)
 
     # Collapsed TimeRange
-    start = Column(Integer)
+    start = Column(Integer, index=True)
     end = Column(Integer)
-    is_future = Column(Boolean, index=True, default=False)
-    is_past = Column(Boolean, index=True, default=False)
 
     # Add domain
     cause = Column(String(20))
