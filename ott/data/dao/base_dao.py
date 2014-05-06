@@ -82,7 +82,6 @@ class BaseDao(object):
             self.has_alerts = True
         else:
             self.has_alerts = False
-        self.has_alerts = True
 
 
 class DatabaseNotFound(BaseDao):
