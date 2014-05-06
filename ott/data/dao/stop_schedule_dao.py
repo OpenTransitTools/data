@@ -64,7 +64,8 @@ class StopScheduleDao(BaseDao):
                 if not headsigns.has_key(id):
                     # make a new headsign
                     h = StopHeadsignDao(st)
-                    h.sort_order += i 
+                    h.sort_order += i
+                    h.id = id
                     headsigns[id] = h
 
                 # 4c: add new stoptime to headsign cache 
