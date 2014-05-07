@@ -6,7 +6,8 @@ from .alerts_dao import AlertsDao
 
 from sqlalchemy.orm import object_session
 from gtfsdb import Route
-Route.make_geom_lazy()
+try: Route.make_geom_lazy()
+except: pass
 
 class RouteListDao(BaseDao):
     ''' List of RouteDao data objects ... both list and RouteDao content ready for marshaling into JSON
