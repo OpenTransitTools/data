@@ -12,7 +12,7 @@ class RouteStopListDao(BaseDao):
     '''
     def __init__(self, rs, r):
         super(RouteStopListDao, self).__init__()
-        self.route_stops = rs
+        self.directions = rs
         self.route = r
         self.count = len(rs)
 
@@ -33,16 +33,19 @@ class RouteStopListDao(BaseDao):
         ret_val = RouteStopListDao(route_stops, route)
         return ret_val
 
+
 class RouteStopDao(BaseDao):
     ''' RouteStopsDao is a collection of a RouteDao, a DirectionDao and a list of StopListDao objects
         the routes_stops are defined in created table in gtfsdb (e.g., gtfsdb loading logic requires
         that gtfs data have direction ids defined in the trip table). 
     '''
-    def __init__(self, route, stops, direction):
+    def __init__(self, route, stops, direction_id):
         super(RouteStopDao, self).__init__()
         self.route = route
+        self.direction_id = direction_id
+        self.direction_name = route.direction_0 if direction_id == 0 else route.direction_1
         self.stop_list = stops
-        self.direction = direction
+
 
     @classmethod
     def from_route_direction(cls, session, route_id, direction_id, agency="TODO", detailed=False):
