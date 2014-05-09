@@ -53,8 +53,9 @@ class StopListDao(BaseDao):
             # step 3b: calculate distance 
             dist = num_utils.distance_mi(s.stop_lat, s.stop_lon, geo_params.lat, geo_params.lon)
 
-            # step 3c: make stop...
+            # step 3c: make stop...plus add stop route short name
             stop = StopDao.from_stop_orm(stop=s, distance=dist, agency=geo_params.agency, detailed=geo_params.detailed)
+            stop.add_route_short_names(stop_orm=s)
             stops.append(stop)
 
         # step 4: sort list then return
@@ -111,26 +112,12 @@ class StopDao(BaseDao):
     '''
     def __init__(self, stop, amenities, routes, alerts=None, distance=0.0, order=0):
         super(StopDao, self).__init__()
-
         self.copy_basics(self.__dict__, stop)
         self.routes = routes
         self.distance = distance
         self.order = order
         self.set_alerts(alerts)
         self.set_amenities(amenities)
-
-        # process the list of routes serving the stop
-        
-
-
-        '''
-        if templates:
-            self.arrival_url, self.has_arrival_url = templates.get_arrival_url(self)
-            self.from_planner_url, self.has_from_planner_url = templates.get_from_planner_url(self)
-            self.to_planner_url, self.has_to_planner_url = templates.get_to_planner_url(self)
-            self.stop_img_url, self.has_stop_img_url = templates.get_stop_img_url(self)
-            self.map_url, self.has_map_url = templates.get_map_url(self)
-        '''
 
     @classmethod
     def copy_basics(cls, tgt, src):
@@ -148,6 +135,16 @@ class StopDao(BaseDao):
             self.has_amenities = True
         else:
             self.has_amenities = False
+
+    def add_route_short_names(self, stop_orm):
+        ''' add an array of short names to the DAO
+        '''
+        if stop_orm and stop_orm.routes is not None and len(stop_orm.routes) > 0:
+            self.short_names = []
+            for r in stop_orm.routes:
+                sn = {'route_id':r.route_id, 'route_short_name':r.route_short_name}
+                self.short_names.append(sn)
+
 
     @classmethod
     def from_stop_orm(cls, stop, distance=0.0, order=0, agency="TODO", detailed=True):
