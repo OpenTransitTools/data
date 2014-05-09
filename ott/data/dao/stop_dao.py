@@ -5,11 +5,13 @@ from .base_dao   import BaseDao
 from .route_dao  import RouteDao
 from .alerts_dao import AlertsDao
 
+from gtfsdb import Route
 from gtfsdb import Stop
 #  make_geom_lazy will screw up nearest_stops
 #Stop.make_geom_lazy()
 
-from ott.utils   import num_utils
+from ott.utils import num_utils
+from ott.utils import transit_utils
 
 
 class StopListDao(BaseDao):
@@ -141,8 +143,9 @@ class StopDao(BaseDao):
         '''
         if stop_orm and stop_orm.routes is not None and len(stop_orm.routes) > 0:
             self.short_names = []
+            stop_orm.routes.sort(key=lambda x: x.route_sort_order, reverse=False)
             for r in stop_orm.routes:
-                sn = {'route_id':r.route_id, 'route_short_name':r.route_short_name}
+                sn = {'route_id':r.route_id, 'route_short_name':transit_utils.make_short_name(r)}
                 self.short_names.append(sn)
 
 

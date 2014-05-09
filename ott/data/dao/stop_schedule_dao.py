@@ -111,55 +111,6 @@ class StopScheduleDao(BaseDao):
 class x():
 
     @classmethod
-    def add_headsign(cls, headsign, headsign_cache):
-        id = str(headsign.id)
-        if id not in headsign_cache:
-            headsign_cache[id] = Headsign(headsign)
-        return id
-
-    @classmethod
-    def find_headsign_id(cls, headsign_list, headsign_cache, stop_headsign, trip_headsign, route_id):
-        ''' return the 'id' index into the headsign_cache dict
-            note, if the headsign is not in the cache, we'll add headsign to the cache.
-        '''
-        #import pdb; pdb.set_trace()
-        ret_val = None
-        for h in headsign_list:
-            if h.stop_headsign == stop_headsign and h.trip_headsign == trip_headsign and h.route_id == route_id:
-                ret_val = cls.add_headsign(h, headsign_cache)
-                break
-        return ret_val
-
-    @classmethod
-    def make_schedule(cls, headsign_list, headsign_cache, times, templates):
-        '''
-            will return a list of dicts ... part of the dict has the schedule stop time, and the other the index of a given headsign
-            {"t":"6:45am",  "h":"3"},
-        '''
-        ret_val = []
-        for t in times:
-            # make sure this is a stop with departure times (e.g., one can board a vehicle)
-            if cls.is_boarding_stop(t):
-                time = object_utils.military_to_english_time(t.departure_time)
-                sign = cls.find_headsign_id(headsign_list, headsign_cache, t.stop_headsign, t.trip.trip_headsign, t.trip.route_id)
-                if time and sign:
-                    r = {"t":time, "h":sign}
-                    ret_val.append(r)
-        return ret_val
-
-    @classmethod
-    def is_boarding_stop(cls, stop_time):
-        ret_val = True
-        try:
-            #import pdb; pdb.set_trace()
-            if stop_time.pickup_type == 1:
-                ret_val = false
-        except:
-            pass
-        return ret_val
-
-
-    @classmethod
     def make_alerts(cls, headsign_cache, session):
         ret_val = []
 
