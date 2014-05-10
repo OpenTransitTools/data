@@ -32,6 +32,7 @@ class StopScheduleDao(BaseDao):
         headsigns = {}
         stoptimes = []
 
+        #import pdb; pdb.set_trace()
 
         # step 1: figure out date and time
         is_now = False
@@ -56,7 +57,7 @@ class StopScheduleDao(BaseDao):
             if cls.is_boarding_stop(st):
                 # 4a: capture a stop object for later...
                 if stop is None:
-                    stop = StopDao.from_stop_orm(stop=st.stop, agency=agency)
+                    stop = StopDao.from_stop_orm(stop=st.stop, agency=agency, detailed=detailed)
 
                 # 4b: only once, capture the route's different headsigns shown at this stop
                 #     (e.g., a given route can have multiple headsignss show at this stop)
@@ -74,17 +75,20 @@ class StopScheduleDao(BaseDao):
                 headsigns[id].last_time = st.departure_time
                 headsigns[id].num_trips += 1
 
-        # step 5: build the DAO object (assuming there was a valid stop / schedule based on the query) 
-        if stop:
-            ret_val = StopScheduleDao(stop, stoptimes, headsigns)
+        # step 5: if we don't have a stop (and thus no stop times), we have to get something for the page to say no schedule today 
+        if stop is None:
+            stop = StopDao.from_stop_id(session=session, stop_id=stop_id, agency=agency, detailed=detailed)
+
+        # step 6: build the DAO object (assuming there was a valid stop / schedule based on the query) 
+        ret_val = StopScheduleDao(stop, stoptimes, headsigns)
 
         return ret_val
 
     @classmethod
-    def get_stop_schedule_from_params(cls, session, stop_params, agency="TODO", detailed=True):
+    def get_stop_schedule_from_params(cls, session, stop_params):
         ''' will make a stop schedule based on values set in ott.utils.parse.StopParamParser 
         '''
-        ret_val = cls.get_stop_schedule(session, stop_params.stop_id, stop_params.date, stop_params.route_id, agency, detailed)
+        ret_val = cls.get_stop_schedule(session, stop_params.stop_id, stop_params.date, stop_params.route_id, stop_params.agency, stop_params.detailed)
         return ret_val
 
     @classmethod
