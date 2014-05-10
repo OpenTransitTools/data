@@ -80,6 +80,12 @@ class StopScheduleDao(BaseDao):
 
         return ret_val
 
+    @classmethod
+    def get_stop_schedule_from_params(cls, session, stop_params, agency="TODO", detailed=True):
+        ''' will make a stop schedule based on values set in ott.utils.parse.StopParamParser 
+        '''
+        ret_val = cls.get_stop_schedule(session, stop_params.stop_id, stop_params.date, stop_params.route_id, agency, detailed)
+        return ret_val
 
     @classmethod
     def make_stop_time(cls, stoptime, headsign_id, now, order):
