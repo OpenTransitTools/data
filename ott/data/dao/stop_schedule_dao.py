@@ -16,14 +16,30 @@ from gtfsdb import Trip
 class StopScheduleDao(BaseDao):
     ''' StopScheduleDao data object is contains all the schedule data at a given stop
     '''
-    def __init__(self, stop, stoptimes, headsigns):
+    def __init__(self, stop, stoptimes, headsigns, route_id=None):
         super(StopScheduleDao, self).__init__()
         self.stop = stop
         self.stoptimes = stoptimes
         self.headsigns = headsigns
+        self.single_route_id   = None
+        self.single_route_name = None
+        r = self.find_route(route_id)
+        if r and r.name:
+            self.single_route_id = route_id
+            self.single_route_name = r.name
+
+    def find_route(self, route_id):
+        ''' @return: RouteDao from the stop
+        '''
+        
+        ret_val = None
+        if self.stop:
+            ret_val = self.stop.find_route(route_id)
+        return ret_val
+
 
     @classmethod
-    def get_stop_schedule(cls, session, stop_id, date=None, route_id=None, agency="TODO", detailed=True):
+    def get_stop_schedule(cls, session, stop_id, date=None, route_id=None, agency="TODO"):
         '''
         '''
         ret_val = None
@@ -32,8 +48,6 @@ class StopScheduleDao(BaseDao):
         headsigns = {}
         stoptimes = []
 
-        #import pdb; pdb.set_trace()
-
         # step 1: figure out date and time
         is_now = False
         if date is None:
@@ -41,23 +55,15 @@ class StopScheduleDao(BaseDao):
             is_now = True
         now = datetime.datetime.now()
 
-        # step 2: get stop times based on date
-        q = session.query(StopTime)
-        q = q.filter_by(stop_id=stop_id)
-        q = q.filter(StopTime.trip.has(Trip.universal_calendar.any(date=date)))
-
-        # step 3: optional route filter
-        if route_id:
-            q = q.filter(StopTime.trip.has(Trip.route_id == route_id))
-
-        q = q.order_by(StopTime.departure_time)
+        # step 2: get the stop schedule
+        stops = StopTime.get_departure_schedule(session, stop_id, date, route_id)
 
         # step 4: loop through our queried stop times
-        for i, st in enumerate(q):
+        for i, st in enumerate(stops):
             if cls.is_boarding_stop(st):
                 # 4a: capture a stop object for later...
                 if stop is None:
-                    stop = StopDao.from_stop_orm(stop=st.stop, agency=agency, detailed=detailed)
+                    stop = StopDao.from_stop_orm(stop=st.stop, agency=agency, detailed=True)
 
                 # 4b: only once, capture the route's different headsigns shown at this stop
                 #     (e.g., a given route can have multiple headsignss show at this stop)
@@ -77,10 +83,10 @@ class StopScheduleDao(BaseDao):
 
         # step 5: if we don't have a stop (and thus no stop times), we have to get something for the page to say no schedule today 
         if stop is None:
-            stop = StopDao.from_stop_id(session=session, stop_id=stop_id, agency=agency, detailed=detailed)
+            stop = StopDao.from_stop_id(session=session, stop_id=stop_id, agency=agency, detailed=True)
 
         # step 6: build the DAO object (assuming there was a valid stop / schedule based on the query) 
-        ret_val = StopScheduleDao(stop, stoptimes, headsigns)
+        ret_val = StopScheduleDao(stop, stoptimes, headsigns, route_id)
 
         return ret_val
 
@@ -88,7 +94,8 @@ class StopScheduleDao(BaseDao):
     def get_stop_schedule_from_params(cls, session, stop_params):
         ''' will make a stop schedule based on values set in ott.utils.parse.StopParamParser 
         '''
-        ret_val = cls.get_stop_schedule(session, stop_params.stop_id, stop_params.date, stop_params.route_id, stop_params.agency, stop_params.detailed)
+        #import pdb; pdb.set_trace()
+        ret_val = cls.get_stop_schedule(session, stop_params.stop_id, stop_params.date, stop_params.route_id, stop_params.agency)
         return ret_val
 
     @classmethod
@@ -105,7 +112,6 @@ class StopScheduleDao(BaseDao):
     def is_boarding_stop(cls, stop_time):
         ret_val = True
         try:
-            #import pdb; pdb.set_trace()
             if stop_time.pickup_type == 1 or stop_time.departure_time is None:
                 ret_val = False
         except:

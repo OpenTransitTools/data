@@ -26,19 +26,16 @@ class StopHeadsignDao(BaseDao):
         self.stop_id = stop_time.stop_id
         self.route_id = stop_time.trip.route.route_id
         self.route_name = stop_time.trip.route.route_name
-        self.headsign = self.get_headsign(stop_time)
+        self.headsign = stop_time.get_headsign()
         self.sort_order = stop_time.trip.route.route_sort_order
         self.first_time = stop_time.departure_time
         self.last_time = stop_time.departure_time
         self.num_trips = 0
 
-    @classmethod
-    def get_headsign(cls, stop_time):
-        return stop_time.stop_headsign or stop_time.trip.trip_headsign
 
     @classmethod
     def unique_id(cls, stop_time):
-        hs = "{0}-{1}-{2}".format(stop_time.trip.route_id, stop_time.stop_id, cls.get_headsign(stop_time))
+        hs = "{0}-{1}-{2}".format(stop_time.trip.route_id, stop_time.stop_id, stop_time.get_headsign())
         uid = object_utils.to_hash(hs)
         return uid 
 

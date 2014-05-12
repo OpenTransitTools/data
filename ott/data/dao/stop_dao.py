@@ -121,6 +121,17 @@ class StopDao(BaseDao):
         self.set_alerts(alerts)
         self.set_amenities(amenities)
 
+    def find_route(self, route_id):
+        ''' @return: RouteDao from the list of routes
+        '''
+        ret_val = None
+        if route_id and self.routes:
+            for r in self.routes:
+                if route_id == r.route_id:
+                    ret_val = r
+                    break
+        return ret_val
+
     @classmethod
     def copy_basics(cls, tgt, src):
         tgt['stop_id'] = src.stop_id
