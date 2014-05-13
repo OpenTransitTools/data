@@ -42,6 +42,7 @@ class BaseDao(object):
         self.status_code = 200
         self.status_message = None
         self.has_errors = False
+        self.has_alerts = False
 
     def __repr__(self):
         return str(self.__dict__)

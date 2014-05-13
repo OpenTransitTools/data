@@ -16,11 +16,12 @@ from gtfsdb import Trip
 class StopScheduleDao(BaseDao):
     ''' StopScheduleDao data object is contains all the schedule data at a given stop
     '''
-    def __init__(self, stop, stoptimes, headsigns, route_id=None):
+    def __init__(self, stop, stoptimes, headsigns, alerts=None, route_id=None):
         super(StopScheduleDao, self).__init__()
         self.stop = stop
         self.stoptimes = stoptimes
         self.headsigns = headsigns
+        self.set_alerts(alerts)
         self.single_route_id   = None
         self.single_route_name = None
         r = self.find_route(route_id)
@@ -45,8 +46,9 @@ class StopScheduleDao(BaseDao):
         ret_val = None
 
         stop = None
-        headsigns = {}
-        stoptimes = []
+        headsigns     = {}
+        stoptimes     = []
+        alerts        = []
 
         # step 1: figure out date and time
         is_now = False
@@ -71,9 +73,17 @@ class StopScheduleDao(BaseDao):
                 if not headsigns.has_key(id):
                     # make a new headsign
                     h = StopHeadsignDao(st)
-                    h.sort_order += i
+                    h.sort_order += len(headsigns)
                     h.id = id
                     headsigns[id] = h
+
+                    # check to see if we have an alert for this headsign
+                    r = stop.find_route(h.route_id)
+                    if len(r.alerts) > 0:
+                        h.has_alerts = True
+                        # add the route to an array
+                        if h.route_id not in alerts:
+                            alerts.append(h.route_id)
 
                 # 4c: add new stoptime to headsign cache 
                 time = cls.make_stop_time(st, id, now, i+1)
@@ -86,7 +96,7 @@ class StopScheduleDao(BaseDao):
             stop = StopDao.from_stop_id(session=session, stop_id=stop_id, agency=agency, detailed=True)
 
         # step 6: build the DAO object (assuming there was a valid stop / schedule based on the query) 
-        ret_val = StopScheduleDao(stop, stoptimes, headsigns, route_id)
+        ret_val = StopScheduleDao(stop, stoptimes, headsigns, alerts, route_id)
 
         return ret_val
 
@@ -106,35 +116,5 @@ class StopScheduleDao(BaseDao):
         #stat = date_utils.now_time_code(stoptime.departure_time, now)
         #ret_val = {"t":time, "h":headsign_id, "n":stat, "o":order}
         ret_val = {"t":time, "h":headsign_id, "o":order}
-        return ret_val
-
-    @classmethod
-    def make_alerts(cls, headsign_cache, session):
-        ret_val = []
-
-        rte_visited = []
-        rte_has_alerts = []
-        for h in headsign_cache.values():
-            rte = str(h.route_id)
-            has_alert = False
-
-            # step 1: only call the alert service once per route (e.g., many headsigns per route)
-            if rte not in rte_visited:
-                rte_visited.append(rte)
-
-                # step 2: first time seeing this route id, so call the alert service
-                alerts = AlertsResponse.get_route_alerts(session, rte)
-
-                # step 3: if this route has alerts, we'll append that list to our ret_val list
-                #         and also mark the 'has_alerts' array with this route for future iterations
-                if alerts:
-                    ret_val = ret_val + alerts
-                    rte_has_alerts.append(rte)
-
-            # step 4: mark headsigns for route X as either having alerts or not  
-            if rte in rte_has_alerts:
-                has_alert = True
-            h.has_alert = has_alert
-
         return ret_val
 
