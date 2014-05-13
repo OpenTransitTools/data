@@ -29,6 +29,7 @@ class StopScheduleDao(BaseDao):
             self.single_route_id = route_id
             self.single_route_name = r.name
 
+
     def find_route(self, route_id):
         ''' @return: RouteDao from the stop
         '''
@@ -37,7 +38,6 @@ class StopScheduleDao(BaseDao):
         if self.stop:
             ret_val = self.stop.find_route(route_id)
         return ret_val
-
 
     @classmethod
     def get_stop_schedule(cls, session, stop_id, date=None, route_id=None, agency="TODO"):
