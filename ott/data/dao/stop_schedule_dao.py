@@ -56,11 +56,11 @@ class StopScheduleDao(BaseDao):
         now = datetime.datetime.now()
 
         # step 2: get the stop schedule
-        stops = StopTime.get_departure_schedule(session, stop_id, date, route_id)
+        stop_times = StopTime.get_departure_schedule(session, stop_id, date, route_id)
 
         # step 4: loop through our queried stop times
-        for i, st in enumerate(stops):
-            if cls.is_boarding_stop(st):
+        for i, st in enumerate(stop_times):
+            if st.is_boarding_stop():
                 # 4a: capture a stop object for later...
                 if stop is None:
                     stop = StopDao.from_stop_orm(stop=st.stop, agency=agency, detailed=True)
@@ -109,24 +109,6 @@ class StopScheduleDao(BaseDao):
         return ret_val
 
     @classmethod
-    def is_boarding_stop(cls, stop_time):
-        ret_val = True
-        try:
-            if stop_time.pickup_type == 1 or stop_time.departure_time is None:
-                ret_val = False
-        except:
-            pass
-        return ret_val
-
-
-
-###########################
-##### OLD CODE
-###########################
-
-class x():
-
-    @classmethod
     def make_alerts(cls, headsign_cache, session):
         ret_val = []
 
@@ -155,3 +137,4 @@ class x():
             h.has_alert = has_alert
 
         return ret_val
+
