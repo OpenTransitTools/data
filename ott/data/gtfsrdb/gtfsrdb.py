@@ -74,6 +74,8 @@ p.add_option('-l', '--language', default='en', dest='lang', metavar='LANG',
 
 p.add_option('-s', '--schema',   default=None, dest='schema', help='Database schema')
 
+p.add_option('-1', '--once',   default=None, dest='once', help='only run the loader one time')
+
 
 opts, args = p.parse_args()
 
@@ -118,125 +120,129 @@ for table in Base.metadata.tables.keys():
             print 'Missing table %s! Use -c to create it.' % table
             exit(1)
 
+def main():
+    try:
+        keep_running = True
+        while keep_running:
+            success = True
+            try:
+            #if True:
+                if opts.deleteOld:
+                    # Go through all of the tables that we create, clear them
+                    # Don't mess with other tables (i.e., tables from static GTFS)
+                    for theClass in AllClasses:
+                        for obj in session.query(theClass):
+                            session.delete(obj)
 
-try:
-    while True:
-        try:
-        #if True:
-            if opts.deleteOld:
-                # Go through all of the tables that we create, clear them
-                # Don't mess with other tables (i.e., tables from static GTFS)
-                for theClass in AllClasses:
-                    for obj in session.query(theClass):
-                        session.delete(obj)
+                if opts.tripUpdates:
+                    fm = gtfs_realtime_pb2.FeedMessage()
+                    fm.ParseFromString(
+                        urlopen(opts.tripUpdates).read()
+                        )
 
-            if opts.tripUpdates:
-                fm = gtfs_realtime_pb2.FeedMessage()
-                fm.ParseFromString(
-                    urlopen(opts.tripUpdates).read()
-                    )
+                    # Convert this a Python object, and save it to be placed into each
+                    # trip_update
+                    timestamp = datetime.datetime.utcfromtimestamp(fm.header.timestamp)
 
-                # Convert this a Python object, and save it to be placed into each
-                # trip_update
-                timestamp = datetime.datetime.utcfromtimestamp(fm.header.timestamp)
+                    # Check the feed version
+                    if fm.header.gtfs_realtime_version != u'1.0':
+                        print 'Warning: feed version has changed: found %s, expected 1.0' % fm.header.gtfs_realtime_version
 
-                # Check the feed version
-                if fm.header.gtfs_realtime_version != u'1.0':
-                    print 'Warning: feed version has changed: found %s, expected 1.0' % fm.header.gtfs_realtime_version
+                    print 'Adding %s trip updates' % len(fm.entity)
+                    for entity in fm.entity:
+                        tu = entity.trip_update
+                        dbtu = TripUpdate(
+                            trip_id = tu.trip.trip_id,
+                            route_id = tu.trip.route_id,
+                            trip_start_time = tu.trip.start_time,
+                            trip_start_date = tu.trip.start_date,
 
-                print 'Adding %s trip updates' % len(fm.entity)
-                for entity in fm.entity:
+                            # get the schedule relationship
+                            # This is somewhat undocumented, but by referencing the 
+                            # DESCRIPTOR.enum_types_by_name, you get a dict of enum types
+                            # as described at http://code.google.com/apis/protocolbuffers/docs/reference/python/google.protobuf.descriptor.EnumDescriptor-class.html
+                            schedule_relationship = tu.trip.DESCRIPTOR.enum_types_by_name['ScheduleRelationship'].values_by_number[tu.trip.schedule_relationship].name,
 
-                    tu = entity.trip_update
+                            vehicle_id = tu.vehicle.id,
+                            vehicle_label = tu.vehicle.label,
+                            vehicle_license_plate = tu.vehicle.license_plate,
+                            timestamp = timestamp)
 
-                    dbtu = TripUpdate(
-                        trip_id = tu.trip.trip_id,
-                        route_id = tu.trip.route_id,
-                        trip_start_time = tu.trip.start_time,
-                        trip_start_date = tu.trip.start_date,
-
-                        # get the schedule relationship
-                        # This is somewhat undocumented, but by referencing the 
-                        # DESCRIPTOR.enum_types_by_name, you get a dict of enum types
-                        # as described at http://code.google.com/apis/protocolbuffers/docs/reference/python/google.protobuf.descriptor.EnumDescriptor-class.html
-                        schedule_relationship = tu.trip.DESCRIPTOR.enum_types_by_name['ScheduleRelationship'].values_by_number[tu.trip.schedule_relationship].name,
-
-                        vehicle_id = tu.vehicle.id,
-                        vehicle_label = tu.vehicle.label,
-                        vehicle_license_plate = tu.vehicle.license_plate,
-                        timestamp = timestamp)
-
-                    for stu in tu.stop_time_update:
-                        dbstu = StopTimeUpdate(
-                            stop_sequence = stu.stop_sequence,
-                            stop_id = stu.stop_id,
-                            arrival_delay = stu.arrival.delay,
-                            arrival_time = stu.arrival.time,
-                            arrival_uncertainty = stu.arrival.uncertainty,
-                            departure_delay = stu.departure.delay,
-                            departure_time = stu.departure.time,
-                            departure_uncertainty = stu.departure.uncertainty,
-                            schedule_relationship = tu.trip.DESCRIPTOR.enum_types_by_name['ScheduleRelationship'].values_by_number[tu.trip.schedule_relationship].name
+                        for stu in tu.stop_time_update:
+                            dbstu = StopTimeUpdate(
+                                stop_sequence = stu.stop_sequence,
+                                stop_id = stu.stop_id,
+                                arrival_delay = stu.arrival.delay,
+                                arrival_time = stu.arrival.time,
+                                arrival_uncertainty = stu.arrival.uncertainty,
+                                departure_delay = stu.departure.delay,
+                                departure_time = stu.departure.time,
+                                departure_uncertainty = stu.departure.uncertainty,
+                                schedule_relationship = tu.trip.DESCRIPTOR.enum_types_by_name['ScheduleRelationship'].values_by_number[tu.trip.schedule_relationship].name
                             )
-                        session.add(dbstu)
-                        dbtu.StopTimeUpdates.append(dbstu)
+                            session.add(dbstu)
+                            dbtu.StopTimeUpdates.append(dbstu)
 
-                    session.add(dbtu)
+                        session.add(dbtu)
 
-            if opts.alerts:
-                alerts.make_alert(session, gtfs_realtime_pb2, opts)
+                if opts.alerts:
+                    alerts.make_alert(session, gtfs_realtime_pb2, opts)
 
-            if opts.vehiclePositions:
-                fm = gtfs_realtime_pb2.FeedMessage()
-                fm.ParseFromString(
-                    urlopen(opts.vehiclePositions).read()
-                    )
+                if opts.vehiclePositions:
+                    fm = gtfs_realtime_pb2.FeedMessage()
+                    fm.ParseFromString(
+                        urlopen(opts.vehiclePositions).read()
+                        )
 
-                # Convert this a Python object, and save it to be placed into each
-                # vehicle_position
-                timestamp = datetime.datetime.utcfromtimestamp(fm.header.timestamp)
+                    # Convert this a Python object, and save it to be placed into each
+                    # vehicle_position
+                    timestamp = datetime.datetime.utcfromtimestamp(fm.header.timestamp)
 
-                # Check the feed version
-                if fm.header.gtfs_realtime_version != u'1.0':
-                    print 'Warning: feed version has changed: found %s, expected 1.0' % fm.header.gtfs_realtime_version
+                    # Check the feed version
+                    if fm.header.gtfs_realtime_version != u'1.0':
+                        print 'Warning: feed version has changed: found %s, expected 1.0' % fm.header.gtfs_realtime_version
 
-                print 'Adding %s vehicle_positions' % len(fm.entity)
-                for entity in fm.entity:
+                    print 'Adding %s vehicle_positions' % len(fm.entity)
+                    for entity in fm.entity:
+                        vp = entity.vehicle
+                        dbvp = VehiclePosition(
+                            trip_id = vp.trip.trip_id,
+                            route_id = vp.trip.route_id,
+                            trip_start_time = vp.trip.start_time,
+                            trip_start_date = vp.trip.start_date,
+                            vehicle_id = vp.vehicle.id,
+                            vehicle_label = vp.vehicle.label,
+                            vehicle_license_plate = vp.vehicle.license_plate,
+                            position_latitude = vp.position.latitude,
+                            position_longitude = vp.position.longitude,
+                            position_bearing = vp.position.bearing,
+                            position_speed = vp.position.speed,
+                            timestamp = timestamp)
 
+                        session.add(dbvp)
 
-                    vp = entity.vehicle
+                # This does deletes and adds, since it's atomic it never leaves us
+                # without data
+                session.commit()
+            except:
+            #else:
+                print 'Exception occurred in iteration'
+                print sys.exc_info()
+                success = False
 
-                    dbvp = VehiclePosition(
-                        trip_id = vp.trip.trip_id,
-                        route_id = vp.trip.route_id,
-                        trip_start_time = vp.trip.start_time,
-                        trip_start_date = vp.trip.start_date,
-                        vehicle_id = vp.vehicle.id,
-                        vehicle_label = vp.vehicle.label,
-                        vehicle_license_plate = vp.vehicle.license_plate,
-                        position_latitude = vp.position.latitude,
-                        position_longitude = vp.position.longitude,
-                        position_bearing = vp.position.bearing,
-                        position_speed = vp.position.speed,
-                        timestamp = timestamp)
-                    
-                    session.add(dbvp)
+            # put this outside the try...except so it won't be skipped when something 
+            # fails
+            # also, makes it easier to end the process with ctrl-c, b/c a 
+            # KeyboardInterrupt here will end the program (cleanly)
+            if opts.once and success:
+                print "Executed the load ONCE ... going to stop now..."
+                keep_running = False
+            else:
+                time.sleep(opts.timeout)
+    finally:
+        print "Closing session . . ."
+        session.close()
 
-            # This does deletes and adds, since it's atomic it never leaves us
-            # without data
-            session.commit()
-        except:
-        #else:
-            print 'Exception occurred in iteration'
-            print sys.exc_info()
+if __name__ == "__main__":
+    main()
 
-
-        # put this outside the try...except so it won't be skipped when something 
-        # fails
-        # also, makes it easier to end the process with ctrl-c, b/c a 
-        # KeyboardInterrupt here will end the program (cleanly)
-        time.sleep(opts.timeout)
-
-finally:
-    print "Closing session . . ."
-    session.close()
