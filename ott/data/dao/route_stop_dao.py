@@ -57,7 +57,7 @@ class RouteStopDao(BaseDao):
         rs = session.query(RouteStop).filter(
                            RouteStop.route_id == route_id,
                            RouteStop.direction_id == direction_id
-                     ).all()
+                     ).order_by(RouteStop.order).all()
 
         if rs and len(rs) > 1:
             route = RouteDao.from_route_orm(rs[0].route, agency, detailed)
