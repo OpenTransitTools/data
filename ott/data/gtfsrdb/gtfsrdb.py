@@ -74,10 +74,10 @@ p.add_option('-l', '--language', default='en', dest='lang', metavar='LANG',
 
 p.add_option('-s', '--schema',   default=None, dest='schema', help='Database schema')
 
-p.add_option('-1', '--once',   default=None, dest='once', help='only run the loader one time')
-
+p.add_option('-1', '--once',  default=False, dest='once', action='store_true', help='only run the loader one time')
 
 opts, args = p.parse_args()
+
 
 if opts.dsn == None:
     print 'No database specified!'
