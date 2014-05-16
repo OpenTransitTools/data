@@ -108,19 +108,18 @@ engine = create_engine(opts.dsn, echo=opts.verbose)
 # sessionmaker returns a class
 session = sessionmaker(bind=engine)()
 
-
-# Check if it has the tables
-# Base from model.py
-for table in Base.metadata.tables.keys():
-    if not engine.has_table(table, opts.schema):
-        if opts.create:
-            print 'Creating table %s' % table
-            Base.metadata.tables[table].create(engine)
-        else:
-            print 'Missing table %s! Use -c to create it.' % table
-            exit(1)
-
 def main():
+    # Check if it has the tables
+    # Base from model.py
+    for table in Base.metadata.tables.keys():
+        if not engine.has_table(table, opts.schema):
+            if opts.create:
+                print 'Creating table %s' % table
+                Base.metadata.tables[table].create(engine)
+            else:
+                print 'Missing table %s! Use -c to create it.' % table
+                exit(1)
+
     try:
         keep_running = True
         while keep_running:
