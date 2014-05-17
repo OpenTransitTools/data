@@ -1,7 +1,7 @@
 import logging
 log = logging.getLogger(__file__)
 
-from .base_dao import BaseDao
+from ott.utils.dao.base import BaseDao
 from .alerts_dao import AlertsDao
 
 from sqlalchemy.orm import object_session

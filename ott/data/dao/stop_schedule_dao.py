@@ -2,7 +2,7 @@ import datetime
 import logging
 log = logging.getLogger(__file__)
 
-from .base_dao import BaseDao
+from ott.utils.dao.base import BaseDao
 from .alerts_dao import AlertsDao
 from .stop_dao import StopDao
 from .headsign_dao import StopHeadsignDao

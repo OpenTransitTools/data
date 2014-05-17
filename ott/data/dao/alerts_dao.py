@@ -2,7 +2,7 @@ import datetime
 import logging
 log = logging.getLogger(__file__)
 
-from .base_dao import BaseDao
+from ott.utils.dao.base import BaseDao
 from ..gtfsrdb import query
 from ott.utils import object_utils
 from ott.utils import date_utils

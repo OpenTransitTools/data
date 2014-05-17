@@ -1,7 +1,7 @@
 import logging
 log = logging.getLogger(__file__)
 
-from .base_dao import BaseDao
+from ott.utils.dao.base import BaseDao
 from .route_dao import RouteDao
 from .stop_dao import StopListDao
 
