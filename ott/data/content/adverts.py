@@ -13,15 +13,16 @@ class Adverts(object):
     def __init__(self, advert_url, avert_timeout_mins=30):
         '''
         '''
+        log.info("create an instance of {0}".format(self.__class__.__name__))
         self.advert_url = advert_url
         if avert_timeout_mins:
             self.avert_timeout = avert_timeout_mins
         else:
             self.avert_timeout = 30
-        self.last_update = datetime.now() - timedelta(minutes = 60)
+        self.last_update = 0
         self.safe_content = None
         self.content = {'rail':{}, 'bus':{}}
-        log.info("create an instance of {0}".format(self.__class__.__name__))
+        self.update()
 
     def update(self):
         ''' update content...
@@ -32,9 +33,10 @@ class Adverts(object):
                 self.last_update = datetime.now()
                 self.content['rail']['en'] = json_utils.stream_json(self.advert_url, extra_path='adverts_train.json')
                 self.content['rail']['es'] = json_utils.stream_json(self.advert_url, extra_path='adverts_train_es.json')
-                self.content['bus']['en'] = json_utils.stream_json(self.advert_url,  extra_path='adverts_bus.json')
-                self.content['bus']['es'] = json_utils.stream_json(self.advert_url,  extra_path='adverts_bus_es.json')
-                self.safe_content = self.content['rail']['en']
+                self.content['bus']['en']  = json_utils.stream_json(self.advert_url,  extra_path='adverts_bus.json')
+                self.content['bus']['es']  = json_utils.stream_json(self.advert_url,  extra_path='adverts_bus_es.json')
+                if self.content['rail']['en']:
+                    self.safe_content = self.content['rail']['en']
         except:
             log.warn("couldn't update the advert")
  
