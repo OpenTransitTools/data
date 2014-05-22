@@ -13,14 +13,14 @@ class TestStuff(unittest.TestCase):
     def test_adverts(self):
         a = Adverts("http://trimet.org/map/adverts/")
         q = a.query()
-        print q
-        self.assertEqual(q['project'], 'test')
+        self.assertGreaterEqual(len(a.content), 2)
+        self.assertRegexpMatches(q[0]['content'], "trimet.org")
 
 
     def test_fares(self):
         f = Fares("http://trimet.org/map/fares/fares.json")
         q = f.query()
-        print q
-        self.assertEqual(f['project'], 'test')
+        self.assertGreaterEqual(len(f.content), 2)
+        self.assertEqual(q, '$2.50')
 
 
