@@ -17,8 +17,8 @@ class Fares(object):
         else:
             self.fare_timeout = 5040
 
-        self.last_update = 0
-        self.content = {}
+        self.last_update = datetime.now() - timedelta(minutes = (self.fare_timeout+10))
+        self.content = []
         self.update()
 
     def update(self):
@@ -30,8 +30,8 @@ class Fares(object):
                 c = json_utils.stream_json(self.fare_url, extra_path='fares.json')
                 if c:
                     self.content = c 
-        except:
-            log.warn("couldn't update the fare content")
+        except Exception, e:
+            log.warn("couldn't update the fare content: {}".format(e))
  
     def query(self, fare_type="adult_oneway", def_val=None):
         ''' 
@@ -39,7 +39,10 @@ class Fares(object):
         ret_val = def_val
         try:
             self.update()
-            ret_val = self.content[fare_type]
+            for c in self.content:
+                if fare_type in c:
+                    ret_val = c[fare_type]
+                    break
         except:
             log.warn("no fare content for fare_type={0}, using default fare of {1}".format(fare_type, def_val))
         return ret_val

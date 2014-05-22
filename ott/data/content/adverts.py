@@ -19,7 +19,7 @@ class Adverts(object):
             self.avert_timeout = avert_timeout_mins
         else:
             self.avert_timeout = 30
-        self.last_update = 0
+        self.last_update = datetime.now() - timedelta(minutes = (self.avert_timeout+10))
         self.safe_content = None
         self.content = {'rail':{}, 'bus':{}}
         self.update()
@@ -37,9 +37,10 @@ class Adverts(object):
                 self.content['bus']['es']  = json_utils.stream_json(self.advert_url,  extra_path='adverts_bus_es.json')
                 if self.content['rail']['en']:
                     self.safe_content = self.content['rail']['en']
-        except:
-            log.warn("couldn't update the advert")
- 
+        except Exception, e:
+            log.warn("couldn't update the advert content: {}".format(e))
+
+
     def query(self, mode="rail", lang="en"):
         ''' 
         '''
