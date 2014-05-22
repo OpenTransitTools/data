@@ -7,7 +7,7 @@ from ott.utils import json_utils
 
 class Fares(object):
 
-    def __init__(self, fare_url, fare_timeout_mins=5040):
+    def __init__(self, fare_url, fare_timeout_mins=1440):
         '''
         '''
         log.info("create an instance of {0}".format(self.__class__.__name__))
@@ -15,7 +15,7 @@ class Fares(object):
         if fare_timeout_mins:
             self.fare_timeout = fare_timeout_mins
         else:
-            self.fare_timeout = 5040
+            self.fare_timeout = 1440
 
         self.last_update = datetime.now() - timedelta(minutes = (self.fare_timeout+10))
         self.content = []
@@ -23,7 +23,9 @@ class Fares(object):
 
     def update(self):
         try:
-            if datetime.now() - self.last_update > timedelta(minutes = self.fare_timeout):
+            if self.content is None \
+            or len(self.content) < 1 \
+            or datetime.now() - self.last_update > timedelta(minutes = self.fare_timeout):
                 log.debug("updating the fare content")
                 self.last_update = datetime.now()
                 c = json_utils.stream_json(self.fare_url)
