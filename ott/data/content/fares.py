@@ -3,6 +3,8 @@ from datetime import timedelta
 import logging
 log = logging.getLogger(__file__)
 
+from ott.utils import json_utils
+
 class Fares(object):
 
     def __init__(self, fare_url, fare_timeout_mins=5040):
@@ -31,7 +33,7 @@ class Fares(object):
         except:
             log.warn("couldn't update the fare content")
  
-    def query(self, fare_type="adult_oneway", def_val="$2.50"):
+    def query(self, fare_type="adult_oneway", def_val=None):
         ''' 
         '''
         ret_val = def_val

@@ -7,6 +7,7 @@ README = open(os.path.join(here, 'README.md')).read()
 CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
 requires = [
+    'ott.utils',
     'sqlalchemy<0.9.0',
     'transaction',
     'gtfsdb',
@@ -39,7 +40,9 @@ setup(
     ],
     author="Open Transit Tools",
     author_email="info@opentransittools.org",
-    dependency_links=[],
+    dependency_links=[
+        'git+https://github.com/OpenTransitTools/utils.git#egg=ott.utils-0.1.0',
+    ],
     license="Mozilla-derived (http://opentransittools.com)",
     url='http://opentransittools.com',
     keywords='ott, otp, gtfs, gtfsdb, data, database, services, transit',
