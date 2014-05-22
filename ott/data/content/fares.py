@@ -23,19 +23,19 @@ class Fares(object):
 
     def update(self):
         try:
-            #import pdb; pdb.set_trace()
             if datetime.now() - self.last_update > timedelta(minutes = self.fare_timeout):
                 log.debug("updating the fare content")
                 self.last_update = datetime.now()
-                c = json_utils.stream_json(self.fare_url, extra_path='fares.json')
+                c = json_utils.stream_json(self.fare_url)
                 if c:
                     self.content = c 
         except Exception, e:
             log.warn("couldn't update the fare content: {}".format(e))
  
-    def query(self, fare_type="adult_oneway", def_val=None):
+    def query(self, fare_type="adult", def_val=None):
         ''' 
         '''
+        #import pdb; pdb.set_trace()
         ret_val = def_val
         try:
             self.update()
