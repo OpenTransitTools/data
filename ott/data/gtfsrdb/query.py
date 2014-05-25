@@ -48,6 +48,7 @@ def via_route_id(session, route_id, agency_id='TODO: NotUsed', stop_id='TODO: No
     try:
         if okay_to_query(session):
             log.info("Alerts via route: {0}".format(route_id))
+            log.info("QUERY EntitySelector table")
             ret_val = session.query(EntitySelector).filter(EntitySelector.route_id == route_id).all()
     except Exception, e:
         log.warn(e)
@@ -59,6 +60,7 @@ def via_stop_id(session, stop_id, agency_id='TODO: NotUsed', def_val=[]):
     try:
         if okay_to_query(session):
             log.info("Alerts via stop: {0}".format(stop_id))
+            log.info("QUERY EntitySelector table")
             ret_val = session.query(EntitySelector).filter(EntitySelector.stop_id == stop_id).all()
     except Exception, e:
         log.warn(e)

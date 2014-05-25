@@ -128,8 +128,15 @@ class Alert(Base):
     route_ids = Column(String(500))
     route_short_names = Column(String(1000))
 
-    InformedEntities = relationship('EntitySelector', backref='Alert')
-
+    InformedEntities = relationship('EntitySelector', 
+            backref='Alert', lazy='joined'
+    )
+    '''
+    InformedEntities = relationship('EntitySelector',
+        primaryjoin='EntitySelector.oid==Alert.oid',
+        foreign_keys='(Alert.oid)',
+        uselist=True, viewonly=True, backref='Alert')#, lazy='joined')
+    '''
 
 class EntitySelector(Base):
     __tablename__ = 'entity_selectors'

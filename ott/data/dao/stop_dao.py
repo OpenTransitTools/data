@@ -1,6 +1,8 @@
 import logging
 log = logging.getLogger(__file__)
 
+from sqlalchemy.orm import joinedload
+
 from ott.utils.dao.base import BaseDao
 from .route_dao  import RouteDao
 from .alerts_dao import AlertsDao
@@ -46,7 +48,8 @@ class StopListDao(BaseDao):
         # step 1: make POINT(x,y)
         point = geo_params.to_point()
 
-        # step 2: query database via geo routines for N of stops cloesst to the POINT  
+        # step 2: query database via geo routines for N of stops cloesst to the POINT
+        log.info("query Stop table")  
         stops_orm = session.query(Stop).order_by(Stop.geom.distance(point)).limit(geo_params.limit)
 
         # step 3a: loop thru nearest N stops
@@ -196,7 +199,10 @@ class StopDao(BaseDao):
         ''' make a StopDao from a stop_id and session ... and maybe templates
         '''
         #import pdb; pdb.set_trace()
-        stop = session.query(Stop).filter(Stop.stop_id == stop_id).one()
+        log.info("query Stop table")
+        q = session.query(Stop)
+        q = q.filter(Stop.stop_id == stop_id)
+        stop = q.one()
         ret_val = cls.from_stop_orm(stop, distance, agency=agency, detailed=detailed)
         return ret_val
 

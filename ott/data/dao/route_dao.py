@@ -22,6 +22,7 @@ class RouteListDao(BaseDao):
         ''' make a list of RouteDao objects by query to the database
         '''
         ### TODO: list of BANNED ROUTES ...
+        log.info("query Route table")
         route_list = []
         routes = session.query(Route).order_by(Route.route_sort_order)
         for r in routes:
@@ -90,6 +91,7 @@ class RouteDao(BaseDao):
         ''' make a RouteDao from a route_id and session
         '''
         #import pdb; pdb.set_trace()
+        log.info("query Route table")
         route = session.query(Route).filter(Route.route_id == route_id).one()
         return cls.from_route_orm(route, agency=agency, detailed=detailed)
 

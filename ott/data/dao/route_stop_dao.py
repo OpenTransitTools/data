@@ -54,6 +54,7 @@ class RouteStopDao(BaseDao):
         ret_val = None
 
         #import pdb; pdb.set_trace()
+        log.info("query RouteStop table")
         rs = session.query(RouteStop).filter(
                            RouteStop.route_id == route_id,
                            RouteStop.direction_id == direction_id

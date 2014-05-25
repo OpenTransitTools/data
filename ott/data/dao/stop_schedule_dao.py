@@ -59,13 +59,11 @@ class StopScheduleDao(BaseDao):
 
         # step 2: get the stop schedule
         stop_times = StopTime.get_departure_schedule(session, stop_id, date, route_id)
+        stop = StopDao.from_stop_id(session, stop_id, agency=agency, detailed=True)
 
         # step 4: loop through our queried stop times
         for i, st in enumerate(stop_times):
             if st.is_boarding_stop():
-                # 4a: capture a stop object for later...
-                if stop is None:
-                    stop = StopDao.from_stop_orm(stop=st.stop, agency=agency, detailed=True)
 
                 # 4b: only once, capture the route's different headsigns shown at this stop
                 #     (e.g., a given route can have multiple headsignss show at this stop)
