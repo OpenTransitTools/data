@@ -2,6 +2,7 @@ import logging
 log = logging.getLogger(__file__)
 
 from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import object_session
 
 from ott.utils.dao.base import BaseDao
 from .route_dao  import RouteDao
@@ -26,14 +27,14 @@ class StopListDao(BaseDao):
         self.name  = name
 
     @classmethod
-    def from_routestops_orm(cls, route_stops, agency="TODO", detailed=False):
+    def from_routestops_orm(cls, route_stops, agency="TODO", detailed=False, show_alerts=False):
         ''' make a StopListDao based on a route_stops object
         '''
         ret_val = None
         if route_stops and len(route_stops) > 0:
             stops = []
             for rs in route_stops:
-                stop = StopDao.from_stop_orm(stop=rs.stop, order=rs.order, agency=agency, detailed=detailed)
+                stop = StopDao.from_stop_orm(stop=rs.stop, order=rs.order, agency=agency, detailed=detailed, show_alerts=show_alerts)
                 stops.append(stop)
             ret_val = StopListDao(stops)
         return ret_val
@@ -164,7 +165,7 @@ class StopDao(BaseDao):
 
 
     @classmethod
-    def from_stop_orm(cls, stop, distance=0.0, order=0, agency="TODO", detailed=True):
+    def from_stop_orm(cls, stop, distance=0.0, order=0, agency="TODO", detailed=False, show_alerts=False):
         ''' make a StopDao from a stop object and session
 
             note that certain pages only need the simple stop info ... so we can 
@@ -186,8 +187,8 @@ class StopDao(BaseDao):
                     rs = RouteDao.from_route_orm(r)
                     routes.append(rs)
 
-            #from sqlalchemy.orm import object_session
-            #alerts = AlertsDao.get_stop_alerts(object_session(stop), stop.stop_id)
+        if show_alerts:
+            alerts = AlertsDao.get_stop_alerts(object_session(stop), stop.stop_id)
 
         # step 2: query db for route ids serving this stop...
         ret_val = StopDao(stop, amenities, routes, alerts, distance, order)
@@ -195,7 +196,7 @@ class StopDao(BaseDao):
 
 
     @classmethod
-    def from_stop_id(cls, session, stop_id, distance=0.0, agency="TODO", detailed=True):
+    def from_stop_id(cls, session, stop_id, distance=0.0, agency="TODO", detailed=False, show_alerts=False):
         ''' make a StopDao from a stop_id and session ... and maybe templates
         '''
         #import pdb; pdb.set_trace()
@@ -203,6 +204,6 @@ class StopDao(BaseDao):
         q = session.query(Stop)
         q = q.filter(Stop.stop_id == stop_id)
         stop = q.one()
-        ret_val = cls.from_stop_orm(stop, distance, agency=agency, detailed=detailed)
+        ret_val = cls.from_stop_orm(stop, distance, agency=agency, detailed=detailed, show_alerts=show_alerts)
         return ret_val
 
