@@ -52,6 +52,7 @@ class StopListDao(BaseDao):
         log.info("query Stop table")  
         q = session.query(Stop)
         #q = q.options(joinedload("stop_times.trip.route"), joinedload("stop_times.trip"))
+        q = q.filter(Stop.location_type == 0)
         q = q.order_by(Stop.geom.distance(point))
         q = q.limit(geo_params.limit)
 
