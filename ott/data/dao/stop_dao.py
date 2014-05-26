@@ -34,7 +34,7 @@ class StopListDao(BaseDao):
         if route_stops and len(route_stops) > 0:
             stops = []
             for rs in route_stops:
-                stop = StopDao.from_stop_orm(stop=rs.stop, order=rs.order, agency=agency, detailed=detailed, show_alerts=show_alerts)
+                stop = StopDao.from_stop_orm(rs.stop, rs.order, agency, detailed, show_alerts)
                 stops.append(stop)
             ret_val = StopListDao(stops)
         return ret_val
