@@ -18,7 +18,7 @@ class RouteListDao(BaseDao):
         self.count = len(routes)
 
     @classmethod
-    def route_list(cls, session, agency="TODO", detailed=False):
+    def route_list(cls, session, agency="TODO", detailed=False, show_alerts=False):
         ''' make a list of RouteDao objects by query to the database
         '''
         ### TODO: list of BANNED ROUTES ...
@@ -26,7 +26,7 @@ class RouteListDao(BaseDao):
         route_list = []
         routes = session.query(Route).order_by(Route.route_sort_order)
         for r in routes:
-            rte = RouteDao.from_route_orm(route=r, agency=agency, detailed=detailed)
+            rte = RouteDao.from_route_orm(route=r, agency=agency, detailed=detailed, show_alerts=show_alerts)
             route_list.append(rte)
 
         ret_val = RouteListDao(route_list)
@@ -76,35 +76,21 @@ class RouteDao(BaseDao):
 
 
     @classmethod
-    def from_route_orm(cls, route, agency="TODO", detailed=True):
+    def from_route_orm(cls, route, agency="TODO", detailed=False, show_alerts=False):
         alerts = []
 
-        if detailed:
+        if show_alerts:
             alerts = AlertsDao.get_route_alerts(object_session(route), route.route_id)
-            pass
 
         ret_val = RouteDao(route, alerts)
         return ret_val
 
     @classmethod
-    def from_route_id(cls, session, route_id, agency="TODO", detailed=True):
+    def from_route_id(cls, session, route_id, agency="TODO", detailed=False, show_alerts=False):
         ''' make a RouteDao from a route_id and session
         '''
         #import pdb; pdb.set_trace()
         log.info("query Route table")
         route = session.query(Route).filter(Route.route_id == route_id).one()
-        return cls.from_route_orm(route, agency=agency, detailed=detailed)
-
-
-    def old_copy(self, route):
-        # fill out templates
-        #if stop:
-        #    self.arrival_url = self.format_template_from_dict(stop, route.arrival_url)
-        self.route_id = route.route_id
-        self.name = route.route_name
-        self.short_name = route.short_name
-        self.sort_order = route.sort_order
-        self.route_url = route.route_url
-        self.routelist_url = route.routelist_url
-        self.arrival_url = route.arrival_url
+        return cls.from_route_orm(route, agency=agency, detailed=detailed, show_alerts=show_alerts)
 

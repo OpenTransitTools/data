@@ -1,7 +1,7 @@
 import logging
 log = logging.getLogger(__file__)
 
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, joinedload_all
 from sqlalchemy.orm import object_session
 
 from ott.utils.dao.base import BaseDao
@@ -203,6 +203,9 @@ class StopDao(BaseDao):
         log.info("query Stop table")
         q = session.query(Stop)
         q = q.filter(Stop.stop_id == stop_id)
+        if detailed:
+            q = q.options(joinedload("stop_features"))
+            pass
         stop = q.one()
         ret_val = cls.from_stop_orm(stop, distance, agency=agency, detailed=detailed, show_alerts=show_alerts)
         return ret_val

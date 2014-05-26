@@ -129,7 +129,7 @@ class Alert(Base):
     route_short_names = Column(String(1000))
 
     InformedEntities = relationship('EntitySelector', 
-            backref='Alert', lazy='joined'
+            backref='Alert'
     )
     '''
     InformedEntities = relationship('EntitySelector',
