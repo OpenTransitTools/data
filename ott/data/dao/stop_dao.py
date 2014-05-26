@@ -8,7 +8,6 @@ from ott.utils.dao.base import BaseDao
 from .route_dao  import RouteDao
 from .alerts_dao import AlertsDao
 
-from gtfsdb import Route
 from gtfsdb import Stop
 #  make_geom_lazy will screw up nearest_stops
 #Stop.make_geom_lazy()
@@ -51,11 +50,14 @@ class StopListDao(BaseDao):
 
         # step 2: query database via geo routines for N of stops cloesst to the POINT
         log.info("query Stop table")  
-        stops_orm = session.query(Stop).order_by(Stop.geom.distance(point)).limit(geo_params.limit)
+        q = session.query(Stop)
+        #q = q.options(joinedload("stop_times.trip.route"), joinedload("stop_times.trip"))
+        q = q.order_by(Stop.geom.distance(point))
+        q = q.limit(geo_params.limit)
 
         # step 3a: loop thru nearest N stops
         stops = []
-        for s in stops_orm:
+        for s in q:
             # step 3b: calculate distance 
             dist = num_utils.distance_mi(s.stop_lat, s.stop_lon, geo_params.lat, geo_params.lon)
 

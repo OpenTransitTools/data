@@ -55,11 +55,12 @@ class RouteStopDao(BaseDao):
 
         #import pdb; pdb.set_trace()
         log.info("query RouteStop table")
-        rs = session.query(RouteStop).filter(
+        q = session.query(RouteStop).filter(
                            RouteStop.route_id == route_id,
                            RouteStop.direction_id == direction_id
-                     ).order_by(RouteStop.order).all()
-
+                     )
+        q = q.order_by(RouteStop.order)
+        rs = q.all()
         if rs and len(rs) > 1:
             route = RouteDao.from_route_orm(rs[0].route, agency, detailed)
             stops = StopListDao.from_routestops_orm(rs, agency, detailed)
