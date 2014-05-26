@@ -77,8 +77,8 @@ class RouteDao(BaseDao):
 
     @classmethod
     def from_route_orm(cls, route, agency="TODO", detailed=False, show_alerts=False):
+        #import pdb; pdb.set_trace()
         alerts = []
-
         if show_alerts:
             alerts = AlertsDao.get_route_alerts(object_session(route), route.route_id)
 
@@ -89,7 +89,6 @@ class RouteDao(BaseDao):
     def from_route_id(cls, session, route_id, agency="TODO", detailed=False, show_alerts=False):
         ''' make a RouteDao from a route_id and session
         '''
-        #import pdb; pdb.set_trace()
         log.info("query Route table")
         route = session.query(Route).filter(Route.route_id == route_id).one()
         return cls.from_route_orm(route, agency=agency, detailed=detailed, show_alerts=show_alerts)

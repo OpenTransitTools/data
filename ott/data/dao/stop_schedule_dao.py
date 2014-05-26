@@ -40,7 +40,7 @@ class StopScheduleDao(BaseDao):
         return ret_val
 
     @classmethod
-    def get_stop_schedule(cls, session, stop_id, date=None, route_id=None, agency="TODO"):
+    def get_stop_schedule(cls, session, stop_id, date=None, route_id=None, agency="TODO", detailed=False, show_alerts=False):
         '''
         '''
         ret_val = None
@@ -59,7 +59,7 @@ class StopScheduleDao(BaseDao):
 
         # step 2: get the stop schedule
         stop_times = StopTime.get_departure_schedule(session, stop_id, date, route_id)
-        stop = StopDao.from_stop_id(session, stop_id, agency=agency, detailed=True)
+        stop = StopDao.from_stop_id(session, stop_id, agency=agency, detailed=detailed, show_alerts=show_alerts)
 
         # step 4: loop through our queried stop times
         for i, st in enumerate(stop_times):
@@ -91,7 +91,7 @@ class StopScheduleDao(BaseDao):
 
         # step 5: if we don't have a stop (and thus no stop times), we have to get something for the page to say no schedule today 
         if stop is None:
-            stop = StopDao.from_stop_id(session=session, stop_id=stop_id, agency=agency, detailed=True)
+            stop = StopDao.from_stop_id(session=session, stop_id=stop_id, agency=agency, detailed=detailed, show_alerts=show_alerts)
 
         # step 6: build the DAO object (assuming there was a valid stop / schedule based on the query) 
         ret_val = StopScheduleDao(stop, stoptimes, headsigns, alerts, route_id)
@@ -99,11 +99,11 @@ class StopScheduleDao(BaseDao):
         return ret_val
 
     @classmethod
-    def get_stop_schedule_from_params(cls, session, stop_params):
+    def get_stop_schedule_from_params(cls, session, params):
         ''' will make a stop schedule based on values set in ott.utils.parse.StopParamParser 
         '''
         #import pdb; pdb.set_trace()
-        ret_val = cls.get_stop_schedule(session, stop_params.stop_id, stop_params.date, stop_params.route_id, stop_params.agency)
+        ret_val = cls.get_stop_schedule(session, params.stop_id, params.date, params.route_id, params.agency, params.detailed, params.alerts)
         return ret_val
 
     @classmethod

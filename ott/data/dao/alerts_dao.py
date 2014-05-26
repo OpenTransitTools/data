@@ -92,7 +92,7 @@ class AlertsDao(BaseDao):
         ''' query GTFSrDB, and return a list of AlertResponse objects for the route
         '''
         ret_val = []
-        #import pdb; pdb.set_trace()
+        import pdb; pdb.set_trace()
         alerts = query.via_route_id(session, route_id, agency_id)
         for a in alerts:
             r = AlertsDao()
