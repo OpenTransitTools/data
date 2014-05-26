@@ -184,11 +184,15 @@ class StopDao(BaseDao):
 
             if stop.routes is not None:
                 for r in stop.routes:
+                    #import pdb; pdb.set_trace()
                     rs = RouteDao.from_route_orm(r, detailed=detailed, show_alerts=show_alerts)
+                    #log.warn(r.route_id)
+                    #rs = RouteDao.from_route_orm(r, detailed=detailed)
                     routes.append(rs)
 
-        if show_alerts:
-            alerts = AlertsDao.get_stop_alerts(object_session(stop), stop.stop_id)
+        # TODO: shut off, as TriMet doesn't use route alerts right now (and I can't afford more /q)
+        #if show_alerts:
+        #    alerts = AlertsDao.get_stop_alerts(object_session(stop), stop.stop_id)
 
         # step 2: query db for route ids serving this stop...
         ret_val = StopDao(stop, amenities, routes, alerts, distance, order)

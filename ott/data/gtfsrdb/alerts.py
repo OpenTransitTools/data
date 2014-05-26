@@ -1,6 +1,8 @@
 import datetime
 import time
 from urllib2 import urlopen
+import logging
+log = logging.getLogger(__file__)
 
 from . import model
 from .utils import get_translation
@@ -41,7 +43,7 @@ def add_short_names(opts, alert_orm, route_ids=[]):
         short_names = []
         try:
             #import pdb; pdb.set_trace()
-            log.info("query Route table")
+            log.debug("query Route table")
             from gtfsdb import Route
             routes = gtfs_db.session.query(Route).filter(Route.route_id.in_(route_ids)).order_by(Route.route_sort_order)
             for r in routes.all():

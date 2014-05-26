@@ -128,10 +128,11 @@ class Alert(Base):
     route_ids = Column(String(500))
     route_short_names = Column(String(1000))
 
+    '''
     InformedEntities = relationship('EntitySelector', 
             backref='Alert', lazy='joined'
     )
-    '''
+
     InformedEntities = relationship('EntitySelector',
         primaryjoin='EntitySelector.oid==Alert.oid',
         foreign_keys='(Alert.oid)',
@@ -156,6 +157,13 @@ class EntitySelector(Base):
 
     alert_id = Column(Integer, ForeignKey('alerts.oid'))
 
+    Alert = relationship('Alert', 
+            lazy='joined',
+            backref='InformedEntities'
+    )
+
+
+
 class VehiclePosition(Base):
     __tablename__ = 'vehicle_positions'
     oid = Column(Integer, primary_key=True, index=True)
@@ -166,12 +174,12 @@ class VehiclePosition(Base):
     route_id = Column(String(10))
     trip_start_time = Column(String(8))
     trip_start_date = Column(String(10))
- 
+
     # Collapsed VehicleDescriptor
     vehicle_id = Column(String(10))
     vehicle_label = Column(String(15))
     vehicle_license_plate = Column(String(10))
-    
+
     # Collapsed Position
     position_latitude = Column(Float)
     position_longitude = Column(Float)
