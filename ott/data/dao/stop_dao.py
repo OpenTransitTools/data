@@ -184,7 +184,7 @@ class StopDao(BaseDao):
 
             if stop.routes is not None:
                 for r in stop.routes:
-                    rs = RouteDao.from_route_orm(r)
+                    rs = RouteDao.from_route_orm(r, detailed=detailed, show_alerts=show_alerts)
                     routes.append(rs)
 
         if show_alerts:
@@ -210,3 +210,9 @@ class StopDao(BaseDao):
         ret_val = cls.from_stop_orm(stop, distance, agency=agency, detailed=detailed, show_alerts=show_alerts)
         return ret_val
 
+    @classmethod
+    def from_stop_params(cls, session, params):
+        ''' will make a stop based on values set in ott.utils.parse.StopParamParser
+        '''
+        ret_val = cls.from_stop_id(session=session, stop_id=params.stop_id, agency=params.agency, detailed=params.detailed, show_alerts=params.alerts)
+        return ret_val
