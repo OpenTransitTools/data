@@ -39,6 +39,21 @@ class StopListDao(BaseDao):
         return ret_val
 
     @classmethod
+    def all_stops(cls, session, agency="TODO", detailed=False, show_alerts=False):
+        ''' make a StopListDao all stops...
+        '''
+        ret_val = None
+        q = session.query(Stop)
+        stops = q.all() 
+        if stops and len(stops) > 0:
+            stops = []
+            for rs in route_stops:
+                stop = StopDao.from_stop_orm(rs.stop, rs.order, agency, detailed, show_alerts)
+                stops.append(stop)
+            ret_val = StopListDao(stops)
+        return ret_val
+
+    @classmethod
     def nearest_stops(cls, session, geo_params):
         ''' make a StopListDao based on a route_stops object
             @params: lon, lat, limit=10, name=None, agency="TODO", detailed=False): 
