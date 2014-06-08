@@ -42,7 +42,8 @@ class AlertsDao(BaseDao):
         self.start  = None
         self.end    = None
         self.is_past = False
-        self.is_future = False
+        self.is_distant = False
+        self.is_future  = False
         self.pretty_start_date = None
         self.pretty_start_time = None
         self.pretty_end_date   = None
@@ -50,17 +51,18 @@ class AlertsDao(BaseDao):
         self.route_short_names = None
         self.route_ids         = None
 
-    def set_dates(self, start, end):
-        self.start = date_utils.make_date_from_timestamp(start)
+    def set_dates(self, start_secs, end_secs):
+        self.start = date_utils.make_date_from_timestamp(start_secs)
         self.pretty_start_date = date_utils.pretty_date(self.start)
         self.pretty_start_time = date_utils.pretty_time(self.start)
 
-        self.is_future = date_utils.is_future(start)
-        self.is_past = date_utils.is_past(end)
+        self.is_future  = date_utils.is_future(start_secs)
+        self.is_past    = date_utils.is_past(end_secs)
+        self.is_distant = date_utils.is_distant(self.start)
 
-        if end > 1000:
-            end = date_utils.make_date_from_timestamp(end)
-            if type(end) is datetime and end > start:
+        if end_secs > 1000:
+            end = date_utils.make_date_from_timestamp(end_secs)
+            if type(end) is datetime and end > self.start:
                 self.end = end
                 self.pretty_end_date = date_utils.pretty_date(self.end)
                 self.pretty_end_time = date_utils.pretty_time(self.end)
