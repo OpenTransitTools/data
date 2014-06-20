@@ -76,8 +76,9 @@ class StopScheduleDao(BaseDao):
                     headsigns[id] = h
 
                     # check to see if we have an alert for this headsign
+                    #import pdb; pdb.set_trace()
                     r = stop.find_route(h.route_id)
-                    if len(r.alerts) > 0:
+                    if r and r.alerts and len(r.alerts) > 0:
                         h.has_alerts = True
                         # add the route to an array
                         if h.route_id not in alerts:
