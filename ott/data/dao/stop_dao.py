@@ -158,7 +158,10 @@ class StopDao(BaseDao):
         tgt['stop_id'] = src.stop_id
         tgt['name'] = src.stop_name
         tgt['description'] = src.stop_desc
-        tgt['direction'] = src.direction
+        if src.direction == ''  or src.direction == None:
+            tgt['direction'] = ''
+        else:
+            tgt['direction'] = "{0}bound".format(src.direction.capitalize())
         tgt['position'] = src.position
         tgt['type'] = src.location_type
         tgt['lat'] = src.stop_lat
@@ -199,7 +202,8 @@ class StopDao(BaseDao):
         if detailed:
             amenities = []
             for f in stop.stop_features:
-                amenities.append(f.stop_feature_type.feature_name)
+                if f and f.stop_feature_type and f.stop_feature_type.feature_name:
+                    amenities.append(f.stop_feature_type.feature_name)
 
             if stop.routes is not None:
                 for r in stop.routes:
