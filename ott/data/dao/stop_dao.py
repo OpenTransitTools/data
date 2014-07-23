@@ -158,6 +158,8 @@ class StopDao(BaseDao):
         tgt['stop_id'] = src.stop_id
         tgt['name'] = src.stop_name
         tgt['description'] = src.stop_desc
+        tgt['direction'] = src.direction
+        tgt['position'] = src.position
         tgt['type'] = src.location_type
         tgt['lat'] = src.stop_lat
         tgt['lon'] = src.stop_lon
