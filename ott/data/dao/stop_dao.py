@@ -202,8 +202,8 @@ class StopDao(BaseDao):
         if detailed:
             amenities = []
             for f in stop.stop_features:
-                if f and f.stop_feature_type and f.stop_feature_type.feature_name:
-                    amenities.append(f.stop_feature_type.feature_name)
+                if f and f.feature_name:
+                    amenities.append(f.feature_name)
 
             if stop.routes is not None:
                 for r in stop.routes:
