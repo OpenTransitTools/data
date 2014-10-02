@@ -113,7 +113,6 @@ class StopScheduleDao(BaseDao):
         '''
         time = date_utils.military_to_english_time(stoptime.departure_time)
         #stat = date_utils.now_time_code(stoptime.departure_time, now)
-        #ret_val = {"t":time, "h":headsign_id, "n":stat, "o":order}
         ret_val = {"t":time, "h":headsign_id, "o":order}
         return ret_val
 
