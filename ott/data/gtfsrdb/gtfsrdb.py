@@ -157,7 +157,7 @@ def main():
                             trip_start_date = tu.trip.start_date,
 
                             # get the schedule relationship
-                            # This is somewhat undocumented, but by referencing the 
+                            # This is somewhat undocumented, but by referencing the
                             # DESCRIPTOR.enum_types_by_name, you get a dict of enum types
                             # as described at http://code.google.com/apis/protocolbuffers/docs/reference/python/google.protobuf.descriptor.EnumDescriptor-class.html
                             schedule_relationship = tu.trip.DESCRIPTOR.enum_types_by_name['ScheduleRelationship'].values_by_number[tu.trip.schedule_relationship].name,

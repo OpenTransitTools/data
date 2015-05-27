@@ -1,4 +1,5 @@
 *~
+[a-z].py
 *.py[cod]
 .settings
 COMMIT_EDITMSG
@@ -9,6 +10,8 @@ COMMIT_EDITMSG
 .#*
 *#
 #*
+.idea
+*.iml
 
 # C extensions
 *.so
@@ -49,9 +52,8 @@ nosetests.xml
 *.sqlite
 *.db-journal
 nohup.out
-x.json
+[a-z].json
 .git
 .git/FETCH_HEAD
 gtfsdb.db.bkup
 x
-X
