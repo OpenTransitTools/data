@@ -8,7 +8,7 @@ CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
 requires = [
     'ott.utils',
-    'sqlalchemy<0.9.0',
+    'sqlalchemy',
     'transaction',
     'gtfsdb',
     'protobuf',
@@ -17,7 +17,7 @@ requires = [
 
 extras_require = dict(
     dev=[],
-    geo=['geoalchemy>=0.6'],
+    geo=['geoalchemy2'],
     postgresql=['psycopg2>=2.4.2'],
 )
 
