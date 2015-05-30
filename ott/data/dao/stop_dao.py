@@ -2,15 +2,11 @@ import logging
 log = logging.getLogger(__file__)
 
 from sqlalchemy.orm import joinedload, joinedload_all
-from sqlalchemy.orm import object_session
 
 from ott.utils.dao.base import BaseDao
 from .route_dao  import RouteDao
-from .alerts_dao import AlertsDao
 
 from gtfsdb import Stop
-#  make_geom_lazy will screw up nearest_stops
-#Stop.make_geom_lazy()
 
 from ott.utils import num_utils
 from ott.utils import transit_utils
@@ -65,9 +61,8 @@ class StopListDao(BaseDao):
         # step 2: query database via geo routines for N of stops cloesst to the POINT
         log.info("query Stop table")  
         q = session.query(Stop)
-        #q = q.options(joinedload("stop_times.trip.route"), joinedload("stop_times.trip"))
         q = q.filter(Stop.location_type == 0)
-        q = q.order_by(Stop.geom.distance(point))
+        q = q.order_by(Stop.geom.distance_centroid(point))
         q = q.limit(geo_params.limit)
 
         # step 3a: loop thru nearest N stops
