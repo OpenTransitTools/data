@@ -2,6 +2,7 @@ import logging
 log = logging.getLogger(__file__)
 
 from ott.utils.dao.base import BaseDao
+from ott.utils import date_utils
 from .alerts_dao import AlertsDao
 
 from sqlalchemy.orm import object_session
@@ -19,10 +20,29 @@ class RouteListDao(BaseDao):
 
     @classmethod
     def active_routes(cls, session, date=None):
-        if date is None:
-            date = datetime.today()
-        routes = session.query(Route).filter(Route.start_date <= date <= Route.end_date).order_by(Route.route_sort_order)
-        return routes
+        '''
+        '''
+        ret_val = []
+
+        # step 1: grab all stops
+        routes = session.query(Route).order_by(Route.route_sort_order).all()
+
+        # step 2: filter by date
+        date = date_utils.str_to_date(date)
+        if date:
+            for r in routes:
+                if r:
+                    # step 3: filter based on date (if invalid looking date objects, just pass the route on)
+                    if r.start_date and r.end_date:
+                        if r.start_date <= date <= r.end_date:
+                            ret_val.append(r)
+                    else:
+                        ret_val.append(r)
+        else:
+            # step 2': if no good date, just assign routes to ret_val
+            ret_val = routes
+
+        return ret_val
 
     @classmethod
     def route_list(cls, session, agency="TODO", detailed=False, show_alerts=False):
@@ -30,8 +50,9 @@ class RouteListDao(BaseDao):
         '''
         ### TODO: list of BANNED ROUTES ...
         log.info("query Route table")
+        #import pdb; pdb.set_trace()
         route_list = []
-        routes = session.query(Route).order_by(Route.route_sort_order)
+        routes = cls.active_routes(session)
         for r in routes:
             rte = RouteDao.from_route_orm(route=r, agency=agency, detailed=detailed, show_alerts=show_alerts)
             route_list.append(rte)
@@ -45,7 +66,6 @@ class RouteDao(BaseDao):
     '''
     def __init__(self, route, alerts):
         super(RouteDao, self).__init__()
-        #import pdb; pdb.set_trace()
         self.copy(route)
         self.set_alerts(alerts)
 
