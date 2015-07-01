@@ -18,6 +18,13 @@ class RouteListDao(BaseDao):
         self.count = len(routes)
 
     @classmethod
+    def active_routes(cls, session, date=None):
+        if date is None:
+            date = datetime.today()
+        routes = session.query(Route).filter(Route.start_date <= date <= Route.end_date).order_by(Route.route_sort_order)
+        return routes
+
+    @classmethod
     def route_list(cls, session, agency="TODO", detailed=False, show_alerts=False):
         ''' make a list of RouteDao objects by query to the database
         '''
