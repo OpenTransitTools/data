@@ -26,7 +26,7 @@ class RouteListDao(BaseDao):
 
         # step 1: grab all stops
         routes = session.query(Route).order_by(Route.route_sort_order).all()
-
+        
         # step 2: filter by date
         date = date_utils.str_to_date(date)
         if date:
