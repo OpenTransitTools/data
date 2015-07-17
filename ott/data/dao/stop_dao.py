@@ -180,7 +180,6 @@ class StopDao(BaseDao):
                 sn = {'route_id':r.route_id, 'route_short_name':transit_utils.make_short_name(r)}
                 self.short_names.append(sn)
 
-
     @classmethod
     def from_stop_orm(cls, stop, distance=0.0, order=0, agency="TODO", detailed=False, show_alerts=False):
         ''' make a StopDao from a stop object and session
@@ -202,11 +201,16 @@ class StopDao(BaseDao):
 
             if stop.routes is not None:
                 for r in stop.routes:
-                    #import pdb; pdb.set_trace()
-                    rs = RouteDao.from_route_orm(r, detailed=detailed, show_alerts=show_alerts)
-                    #log.warn(r.route_id)
-                    #rs = RouteDao.from_route_orm(r, detailed=detailed)
-                    routes.append(rs)
+                    rs = None
+                    try:
+                        rs = RouteDao.from_route_orm(r, detailed=detailed, show_alerts=show_alerts)
+                    except:
+                        try:
+                            rs = RouteDao.from_route_orm(r)
+                        except:
+                            log.info("couldn't get route information")
+                    if rs:
+                        routes.append(rs)
 
         # TODO: shut off, as TriMet doesn't use route alerts right now (and I can't afford more /q)
         #if show_alerts:
