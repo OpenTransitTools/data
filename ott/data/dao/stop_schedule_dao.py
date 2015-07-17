@@ -69,26 +69,30 @@ class StopScheduleDao(BaseDao):
                 #     (e.g., a given route can have multiple headsignss show at this stop)
                 id = StopHeadsignDao.unique_id(st)
                 if not headsigns.has_key(id):
-                    # make a new headsign
-                    h = StopHeadsignDao(st)
-                    h.sort_order += len(headsigns)
-                    h.id = id
-                    headsigns[id] = h
+                    try:
+                        # make a new headsign
+                        h = StopHeadsignDao(st)
+                        h.sort_order += len(headsigns)
+                        h.id = id
+                        headsigns[id] = h
 
-                    # check to see if we have an alert for this headsign
-                    #import pdb; pdb.set_trace()
-                    r = stop.find_route(h.route_id)
-                    if r and r.alerts and len(r.alerts) > 0:
-                        h.has_alerts = True
-                        # add the route to an array
-                        if h.route_id not in alerts:
-                            alerts.append(h.route_id)
+                        # check to see if we have an alert for this headsign
+                        #import pdb; pdb.set_trace()
+                        r = stop.find_route(h.route_id)
+                        if r and r.alerts and len(r.alerts) > 0:
+                            h.has_alerts = True
+                            # add the route to an array
+                            if h.route_id not in alerts:
+                                alerts.append(h.route_id)
+                    except:
+                        log.info("get_stop_schedule: we saw some strange headsing stuff")
 
-                # 4c: add new stoptime to headsign cache 
-                time = cls.make_stop_time(st, id, now, i+1)
-                stoptimes.append(time)
-                headsigns[id].last_time = st.departure_time
-                headsigns[id].num_trips += 1
+                # 4c: add new stoptime to headsign cache
+                if id in headsigns:
+                    time = cls.make_stop_time(st, id, now, i+1)
+                    stoptimes.append(time)
+                    headsigns[id].last_time = st.departure_time
+                    headsigns[id].num_trips += 1
 
         # step 5: if we don't have a stop (and thus no stop times), we have to get something for the page to say no schedule today 
         if stop is None:
