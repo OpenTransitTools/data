@@ -59,7 +59,7 @@ class StopScheduleDao(BaseDao):
 
         # step 2: get the stop schedule
         stop_times = StopTime.get_departure_schedule(session, stop_id, date, route_id)
-        stop = StopDao.from_stop_id(session, stop_id, agency=agency, detailed=detailed, show_alerts=show_alerts)
+        stop = StopDao.from_stop_id(session=session, stop_id=stop_id, agency=agency, detailed=detailed, show_alerts=show_alerts)
 
         # step 4: loop through our queried stop times
         for i, st in enumerate(stop_times):
@@ -107,8 +107,7 @@ class StopScheduleDao(BaseDao):
     def get_stop_schedule_from_params(cls, session, params):
         ''' will make a stop schedule based on values set in ott.utils.parse.StopParamParser 
         '''
-        #import pdb; pdb.set_trace()
-        ret_val = cls.get_stop_schedule(session, params.stop_id, params.date, params.route_id, params.agency, params.detailed, params.alerts)
+        ret_val = cls.get_stop_schedule(session=session, stop_id=params.stop_id, date=params.date, route_id=params.route_id, agency=params.agency, detailed=params.detailed, show_alerts=params.alerts)
         return ret_val
 
     @classmethod
@@ -116,7 +115,6 @@ class StopScheduleDao(BaseDao):
         ''' {"t":'12:33am', "h":'headsign_id;, "n":[E|N|L ... where E=Earlier Today, N=Now/Next, L=Later]}
         '''
         time = date_utils.military_to_english_time(stoptime.departure_time)
-        #stat = date_utils.now_time_code(stoptime.departure_time, now)
         ret_val = {"t":time, "h":headsign_id, "o":order}
         return ret_val
 

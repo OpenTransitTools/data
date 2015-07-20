@@ -62,8 +62,8 @@ class RouteStopDao(BaseDao):
         q = q.order_by(RouteStop.order)
         rs = q.all()
         if rs and len(rs) > 1:
-            route = RouteDao.from_route_orm(rs[0].route, agency, detailed)
-            stops = StopListDao.from_routestops_orm(rs, agency, detailed, active_stops_only)
+            route = RouteDao.from_route_orm(route=rs[0].route, agency=agency, detailed=detailed)
+            stops = StopListDao.from_routestops_orm(route_stops=rs, agency=agency, detailed=detailed, active_stops_only=active_stops_only)
             ret_val = RouteStopDao(route, stops, rs[0].direction_id)
 
         return ret_val

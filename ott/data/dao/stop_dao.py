@@ -31,7 +31,7 @@ class StopListDao(BaseDao):
             for rs in route_stops:
                 if active_stops_only and not rs.stop.is_active:
                     continue
-                stop = StopDao.from_stop_orm(rs.stop, rs.order, agency, detailed, show_alerts)
+                stop = StopDao.from_stop_orm(stop=rs.stop, order=rs.order, agency=agency, detailed=detailed, show_alerts=show_alerts)
                 stops.append(stop)
             ret_val = StopListDao(stops)
         return ret_val
@@ -46,7 +46,7 @@ class StopListDao(BaseDao):
         if stops and len(stops) > 0:
             stops = []
             for rs in route_stops:
-                stop = StopDao.from_stop_orm(rs.stop, rs.order, agency, detailed, show_alerts)
+                stop = StopDao.from_stop_orm(stop=rs.stop, order=rs.order, agency=agency, detailed=detailed, show_alerts=show_alerts)
                 stops.append(stop)
             ret_val = StopListDao(stops)
         return ret_val
@@ -205,10 +205,11 @@ class StopDao(BaseDao):
                 for r in stop.routes:
                     rs = None
                     try:
-                        rs = RouteDao.from_route_orm(r, detailed=detailed, show_alerts=show_alerts)
+                        rs = RouteDao.from_route_orm(route=r, agency=agency, detailed=detailed, show_alerts=show_alerts)
                     except:
+                        # better to get some route information than all information if we run into an error
                         try:
-                            rs = RouteDao.from_route_orm(r)
+                            rs = RouteDao.from_route_orm(route=r)
                         except:
                             log.info("couldn't get route information")
                     if rs:
@@ -235,7 +236,7 @@ class StopDao(BaseDao):
             q = q.options(joinedload("stop_features"))
             pass
         stop = q.one()
-        ret_val = cls.from_stop_orm(stop, distance, agency=agency, detailed=detailed, show_alerts=show_alerts)
+        ret_val = cls.from_stop_orm(stop=stop, distance=distance, agency=agency, detailed=detailed, show_alerts=show_alerts)
         return ret_val
 
     @classmethod
