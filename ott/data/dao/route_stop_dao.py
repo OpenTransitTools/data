@@ -17,7 +17,7 @@ class RouteStopListDao(BaseDao):
         self.count = len(rs)
 
     @classmethod
-    def from_route(cls, session, route_id, direction_id=None, agency="TODO", detailed=False):
+    def from_route(cls, session, route_id, direction_id=None, agency="TODO", detailed=False, active_stops_only=True):
         ''' make a StopListDao based on a route_stops object
         '''
         route = None
@@ -26,7 +26,7 @@ class RouteStopListDao(BaseDao):
         if direction_id:
             dirs = [direction_id]
         for d in dirs:
-            rs = RouteStopDao.from_route_direction(session, route_id, d)
+            rs = RouteStopDao.from_route_direction(session, route_id, d, agency, detailed, active_stops_only)
             if rs and rs.route:
                 route = rs.route
                 route_stops.append(rs)
@@ -48,7 +48,7 @@ class RouteStopDao(BaseDao):
 
 
     @classmethod
-    def from_route_direction(cls, session, route_id, direction_id, agency="TODO", detailed=False):
+    def from_route_direction(cls, session, route_id, direction_id, agency="TODO", detailed=False, active_stops_only=True):
         ''' make a RouteStopsDao from route_id, direction_id and session
         '''
         ret_val = None
@@ -63,9 +63,7 @@ class RouteStopDao(BaseDao):
         rs = q.all()
         if rs and len(rs) > 1:
             route = RouteDao.from_route_orm(rs[0].route, agency, detailed)
-            stops = StopListDao.from_routestops_orm(rs, agency, detailed)
-            # TODO: DirectionDao()
+            stops = StopListDao.from_routestops_orm(rs, agency, detailed, active_stops_only)
             ret_val = RouteStopDao(route, stops, rs[0].direction_id)
 
-        #ret_val = RouteStopDao(r, session)
         return ret_val

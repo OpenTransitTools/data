@@ -22,13 +22,15 @@ class StopListDao(BaseDao):
         self.name  = name
 
     @classmethod
-    def from_routestops_orm(cls, route_stops, agency="TODO", detailed=False, show_alerts=False):
+    def from_routestops_orm(cls, route_stops, agency="TODO", detailed=False, show_alerts=False, active_stops_only=True):
         ''' make a StopListDao based on a route_stops object
         '''
         ret_val = None
         if route_stops and len(route_stops) > 0:
             stops = []
             for rs in route_stops:
+                if active_stops_only and not rs.stop.is_active:
+                    continue
                 stop = StopDao.from_stop_orm(rs.stop, rs.order, agency, detailed, show_alerts)
                 stops.append(stop)
             ret_val = StopListDao(stops)
