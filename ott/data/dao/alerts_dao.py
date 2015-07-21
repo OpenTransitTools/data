@@ -52,6 +52,7 @@ class AlertsDao(BaseDao):
         self.route_ids         = None
 
     def set_dates(self, start_secs, end_secs):
+        #import pdb; pdb.set_trace()
         self.start = date_utils.make_date_from_timestamp(start_secs)
         self.pretty_start_date = date_utils.pretty_date(self.start)
         self.pretty_start_time = date_utils.pretty_time(self.start)
@@ -80,7 +81,6 @@ class AlertsDao(BaseDao):
         ''' query GTFSrDB, and return a list of AlertResponse objects for the route
         '''
         ret_val = []
-        #import pdb; pdb.set_trace()
         alerts = query.via_route_id(session, route_id, agency_id)
         for a in alerts:
             r = AlertsDao()
@@ -94,13 +94,17 @@ class AlertsDao(BaseDao):
         ''' query GTFSrDB, and return a list of AlertResponse objects for the route
         '''
         ret_val = []
-        #import pdb; pdb.set_trace()
-        alerts = query.via_route_id(session, route_id, agency_id)
-        for a in alerts:
-            r = AlertsDao()
-            r.init_via_alert(session, a)
-            ret_val.append(r)
-        ret_val.sort(key=lambda x: x.start, reverse=False)
+        try:
+            alerts = query.via_route_id(session, route_id, agency_id)
+
+            for a in alerts:
+                r = AlertsDao()
+                r.init_via_alert(session, a)
+                ret_val.append(r)
+            if len(ret_val) > 0:
+                ret_val.sort(key=lambda x: x.start, reverse=False)
+        except Exception, e:
+            log.warn(e)
         return ret_val
 
 

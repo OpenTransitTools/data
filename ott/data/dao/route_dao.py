@@ -104,7 +104,6 @@ class RouteDao(BaseDao):
 
     @classmethod
     def from_route_orm(cls, route, agency="TODO", detailed=False, show_alerts=False):
-        #import pdb; pdb.set_trace()
         alerts = []
         if show_alerts:
             alerts = AlertsDao.get_route_alerts(object_session(route), route.route_id)
