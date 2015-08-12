@@ -74,6 +74,7 @@ class RouteDao(BaseDao):
         self.route_id = r.route_id
         self.short_name = r.route_short_name
         self.sort_order = r.route_sort_order
+        self.url = getattr(r, 'route_url', None)
         self.add_route_dirs(r)
 
     def add_route_dirs(self, route):

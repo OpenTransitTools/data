@@ -155,6 +155,7 @@ class StopDao(BaseDao):
         tgt['stop_id'] = src.stop_id
         tgt['name'] = src.stop_name
         tgt['description'] = src.stop_desc
+        tgt['url'] = getattr(src, 'stop_url', None)
         if src.direction == ''  or src.direction == None:
             tgt['direction'] = ''
         else:
