@@ -61,7 +61,7 @@ class StopScheduleDao(BaseDao):
         stop = StopDao.from_stop_id(session=session, stop_id=stop_id, agency=agency, detailed=detailed, show_alerts=show_alerts)
 
         # step 3: get the stop schedule if the first query with route_id doesn't return anything, lets try angain w/out a route
-        if route_id and route_id:
+        if route_id and stop.find_route(route_id):
             # step 3a: filter the schedule by a valid route_id (e.g., if route_id is scheduled for this stop at some point)
             stop_times = StopTime.get_departure_schedule(session, stop_id, date, route_id)
         else:
