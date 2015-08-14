@@ -33,7 +33,6 @@ class StopScheduleDao(BaseDao):
     def find_route(self, route_id):
         ''' @return: RouteDao from the stop
         '''
-        
         ret_val = None
         if self.stop:
             ret_val = self.stop.find_route(route_id)
@@ -45,27 +44,27 @@ class StopScheduleDao(BaseDao):
         '''
         ret_val = None
 
-        stop = None
         headsigns     = {}
-        stoptimes     = []
+        schedule      = []
         alerts        = []
 
         # step 1: figure out date and time
-        is_now = False
-        if date is None:
-            date = datetime.date.today()
-            is_now = True
         now = datetime.datetime.now()
+        if date is None:
+            date = now
 
         # step 2: get the stop
         stop = StopDao.from_stop_id(session=session, stop_id=stop_id, agency=agency, detailed=detailed, show_alerts=show_alerts)
 
         # step 3: get the stop schedule if the first query with route_id doesn't return anything, lets try angain w/out a route
-        if route_id and stop.find_route(route_id):
-            # step 3a: filter the schedule by a valid route_id (e.g., if route_id is scheduled for this stop at some point)
-            stop_times = StopTime.get_departure_schedule(session, stop_id, date, route_id)
-        else:
-            stop_times = StopTime.get_departure_schedule(session, stop_id, date)
+        import pdb; pdb.set_trace()
+        stop_times = []
+        if stop:
+            if route_id and stop.find_route(route_id):
+                # step 3a: filter the schedule by a valid route_id (e.g., if route_id is scheduled for this stop at some point)
+                stop_times = StopTime.get_departure_schedule(session, stop_id, date, route_id)
+            else:
+                stop_times = StopTime.get_departure_schedule(session, stop_id, date)
 
         # step 4: loop through our queried stop times
         for i, st in enumerate(stop_times):
@@ -96,16 +95,12 @@ class StopScheduleDao(BaseDao):
                 # 4c: add new stoptime to headsign cache
                 if id in headsigns:
                     time = cls.make_stop_time(st, id, now, i+1)
-                    stoptimes.append(time)
+                    schedule.append(time)
                     headsigns[id].last_time = st.departure_time
                     headsigns[id].num_trips += 1
 
-        # step 5: if we don't have a stop (and thus no stop times), we have to get something for the page to say no schedule today 
-        if stop is None:
-            stop = StopDao.from_stop_id(session=session, stop_id=stop_id, agency=agency, detailed=detailed, show_alerts=show_alerts)
-
-        # step 6: build the DAO object (assuming there was a valid stop / schedule based on the query) 
-        ret_val = StopScheduleDao(stop, stoptimes, headsigns, alerts, route_id)
+        # step 5: build the DAO object (assuming there was a valid stop / schedule based on the query)
+        ret_val = StopScheduleDao(stop, schedule, headsigns, alerts, route_id)
 
         return ret_val
 

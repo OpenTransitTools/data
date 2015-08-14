@@ -48,9 +48,11 @@ class RouteListDao(BaseDao):
     def route_list(cls, session, agency="TODO", detailed=False, show_alerts=False):
         ''' make a list of RouteDao objects by query to the database
         '''
+        ret_val = None
+        #import pdb; pdb.set_trace()
+
         ### TODO: list of BANNED ROUTES ...
         log.info("query Route table")
-        #import pdb; pdb.set_trace()
         route_list = []
         routes = cls.active_routes(session)
         for r in routes:
