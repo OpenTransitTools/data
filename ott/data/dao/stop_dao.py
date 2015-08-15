@@ -139,17 +139,6 @@ class StopDao(BaseDao):
         self.set_alerts(alerts)
         self.set_amenities(amenities)
 
-    def find_route(self, route_id):
-        ''' @return: RouteDao from the list of routes
-        '''
-        ret_val = None
-        if route_id and self.routes:
-            for r in self.routes:
-                if route_id == r.route_id:
-                    ret_val = r
-                    break
-        return ret_val
-
     @classmethod
     def copy_basics(cls, tgt, src):
         tgt['stop_id'] = src.stop_id
@@ -164,6 +153,17 @@ class StopDao(BaseDao):
         tgt['type'] = src.location_type
         tgt['lat'] = src.stop_lat
         tgt['lon'] = src.stop_lon
+
+    def find_route(self, route_id):
+        ''' @return: RouteDao from the list of routes
+        '''
+        ret_val = None
+        if route_id and self.routes:
+            for r in self.routes:
+                if route_id == r.route_id:
+                    ret_val = r
+                    break
+        return ret_val
 
     def set_amenities(self, amenities):
         self.amenities = amenities
@@ -184,35 +184,46 @@ class StopDao(BaseDao):
                 self.short_names.append(sn)
 
     @classmethod
-    def from_stop_orm(cls, stop, distance=0.0, order=0, agency="TODO", detailed=False, show_alerts=False):
+    def from_stop_orm(cls, stop, distance=0.0, order=0, agency="TODO", detailed=False, show_alerts=False, date=None):
         ''' make a StopDao from a stop object and session
 
             note that certain pages only need the simple stop info ... so we can 
             avoid queries of detailed stop info (like routes hitting a stop, alerts, etc...)
         '''
+        ret_val = None
 
         amenities = []
         routes = []
         alerts = []
 
-        # step 1: 
+        # step 1: if we want full details on this stop, include features and amenities, etc...
         if detailed:
+
+            # step 1a: get list of stop amenities
             amenities = []
             for f in stop.stop_features:
                 if f and f.feature_name:
                     amenities.append(f.feature_name)
 
+            # step 1b.1: get the routes for a stop
             if stop.routes is not None:
                 for r in stop.routes:
                     rs = None
+                    # step 1b.2: filter routes based on date
+                    if date and (date < r.start_date or date > r.end_date):
+                        continue
+
+                    # step 1b.3: build the route object for the stop's route (could be detailed and with alerts)
                     try:
                         rs = RouteDao.from_route_orm(route=r, agency=agency, detailed=detailed, show_alerts=show_alerts)
                     except:
-                        # better to get some route information than all information if we run into an error
+                        # step 1b.4: we got an error above, so let's try to get minimal route information
                         try:
                             rs = RouteDao.from_route_orm(route=r)
                         except:
                             log.info("couldn't get route information")
+
+                    # step 1b.5: build the list of routes
                     if rs:
                         routes.append(rs)
 
@@ -226,7 +237,7 @@ class StopDao(BaseDao):
 
 
     @classmethod
-    def from_stop_id(cls, session, stop_id, distance=0.0, agency="TODO", detailed=False, show_alerts=False):
+    def from_stop_id(cls, session, stop_id, distance=0.0, agency="TODO", detailed=False, show_alerts=False, date=None):
         ''' make a StopDao from a stop_id and session ... and maybe templates
         '''
         #import pdb; pdb.set_trace()
@@ -239,7 +250,7 @@ class StopDao(BaseDao):
                 q = q.options(joinedload("stop_features"))
                 pass
             stop = q.one()
-            ret_val = cls.from_stop_orm(stop=stop, distance=distance, agency=agency, detailed=detailed, show_alerts=show_alerts)
+            ret_val = cls.from_stop_orm(stop=stop, distance=distance, agency=agency, detailed=detailed, show_alerts=show_alerts, date=date)
         except:
             pass
         return ret_val
@@ -248,5 +259,5 @@ class StopDao(BaseDao):
     def from_stop_params(cls, session, params):
         ''' will make a stop based on values set in ott.utils.parse.StopParamParser
         '''
-        ret_val = cls.from_stop_id(session=session, stop_id=params.stop_id, agency=params.agency, detailed=params.detailed, show_alerts=params.alerts)
+        ret_val = cls.from_stop_id(session=session, stop_id=params.stop_id, agency=params.agency, detailed=params.detailed, show_alerts=params.alerts, date=params.date)
         return ret_val
