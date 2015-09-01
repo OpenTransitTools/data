@@ -130,7 +130,7 @@ class StopDao(BaseDao):
     "routes": [
         {"route_id":1, "name":"1-Vermont", "route_url":"http://trimet.org/schedules/r001.htm", "arrival_url":"http://trimet.org/arrivals/tracker.html?locationID=7765&route=001"}
     '''
-    def __init__(self, stop, amenities, routes, alerts=None, distance=0.0, order=0):
+    def __init__(self, stop, amenities, routes, alerts=None, distance=0.0, order=0, date=None):
         super(StopDao, self).__init__()
         self.copy_basics(self.__dict__, stop)
         self.routes = routes
@@ -138,6 +138,7 @@ class StopDao(BaseDao):
         self.order = order
         self.set_alerts(alerts)
         self.set_amenities(amenities)
+        self.set_date(date)
 
     @classmethod
     def copy_basics(cls, tgt, src):
@@ -232,7 +233,7 @@ class StopDao(BaseDao):
         #    alerts = AlertsDao.get_stop_alerts(object_session(stop), stop.stop_id)
 
         # step 2: query db for route ids serving this stop...
-        ret_val = StopDao(stop, amenities, routes, alerts, distance, order)
+        ret_val = StopDao(stop, amenities, routes, alerts, distance, order, date)
         return ret_val
 
 
