@@ -132,6 +132,8 @@ class StopDao(BaseDao):
     '''
     def __init__(self, stop, amenities, routes, alerts=None, distance=0.0, order=0, date=None):
         super(StopDao, self).__init__()
+
+        #import pdb; pdb.set_trace()
         self.copy_basics(self.__dict__, stop)
         self.routes = routes
         self.distance = distance
@@ -241,7 +243,6 @@ class StopDao(BaseDao):
     def from_stop_id(cls, session, stop_id, distance=0.0, agency="TODO", detailed=False, show_alerts=False, date=None):
         ''' make a StopDao from a stop_id and session ... and maybe templates
         '''
-        #import pdb; pdb.set_trace()
         ret_val = None
         try:
             log.info("query Stop table")
