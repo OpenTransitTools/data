@@ -108,11 +108,14 @@ class AlertsDao(BaseDao):
         ''' query GTFSrDB, and return a list of AlertResponse objects for this stop id
         '''
         ret_val = []
-        alerts = query.via_stop_id(session, stop_id, agency_id)
-        for a in alerts:
-            r = AlertsDao()
-            r.init_via_alert(session, a)
-            ret_val.append(r)
+        try:
+            alerts = query.via_stop_id(session, stop_id, agency_id)
+            for a in alerts:
+                r = AlertsDao()
+                r.init_via_alert(session, a)
+                ret_val.append(r)
+        except Exception, e:
+            log.warn(e)
         return ret_val
 
 
