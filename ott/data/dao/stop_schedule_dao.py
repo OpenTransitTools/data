@@ -3,14 +3,12 @@ import logging
 log = logging.getLogger(__file__)
 
 from ott.utils.dao.base import BaseDao
-from .alerts_dao import AlertsDao
 from .stop_dao import StopDao
 from .headsign_dao import StopHeadsignDao
 
 from ott.utils import date_utils
 
 from gtfsdb import StopTime
-from gtfsdb import Trip
 
 
 class StopScheduleDao(BaseDao):
@@ -28,7 +26,6 @@ class StopScheduleDao(BaseDao):
         if r and r.name:
             self.single_route_id = route_id
             self.single_route_name = r.name
-
 
     def find_route(self, route_id):
         ''' @return: RouteDao from the stop
@@ -118,4 +115,3 @@ class StopScheduleDao(BaseDao):
         time = date_utils.military_to_english_time(stoptime.departure_time)
         ret_val = {"t":time, "h":headsign_id, "o":order}
         return ret_val
-

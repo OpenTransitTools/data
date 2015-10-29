@@ -104,13 +104,14 @@ class RouteDao(BaseDao):
         self.direction_0 = dir0
         self.direction_1 = dir1
 
-
     @classmethod
     def from_route_orm(cls, route, agency="TODO", detailed=False, show_alerts=False):
         alerts = []
-        if show_alerts:
-            alerts = AlertsDao.get_route_alerts(object_session(route), route.route_id)
-
+        try:
+            if show_alerts:
+                alerts = AlertsDao.get_route_alerts(object_session(route), route.route_id)
+        except Exception, e:
+            log.warn(e)
         ret_val = RouteDao(route, alerts)
         return ret_val
 
@@ -121,4 +122,3 @@ class RouteDao(BaseDao):
         log.info("query Route table")
         route = session.query(Route).filter(Route.route_id == route_id).one()
         return cls.from_route_orm(route, agency=agency, detailed=detailed, show_alerts=show_alerts)
-

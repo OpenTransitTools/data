@@ -6,9 +6,7 @@ from ott.utils.dao.base import BaseDao
 from ..gtfsrdb import query
 from ott.utils import object_utils
 from ott.utils import date_utils
-from ott.utils import transit_utils
 
-from gtfsdb import Route
 
 class AlertsListDao(BaseDao):
     def __init__(self, alerts):
@@ -68,7 +66,6 @@ class AlertsDao(BaseDao):
                 self.pretty_end_date = date_utils.pretty_date(self.end)
                 self.pretty_end_time = date_utils.pretty_time(self.end)
 
-
     def init_via_alert(self, session, alert):
         ''' init this object via this 
         '''
@@ -88,7 +85,6 @@ class AlertsDao(BaseDao):
             ret_val.append(r)
         return ret_val
 
-
     @classmethod
     def get_route_alerts(cls, session, route_id, agency_id='NotUsed-AssumesSingleAgencyAlaTriMet'):
         ''' query GTFSrDB, and return a list of AlertResponse objects for the route
@@ -107,7 +103,6 @@ class AlertsDao(BaseDao):
             log.warn(e)
         return ret_val
 
-
     @classmethod
     def get_stop_alerts(cls, session, stop_id, agency_id='NotUsed-AssumesSingleAgencyAlaTriMet'):
         ''' query GTFSrDB, and return a list of AlertResponse objects for this stop id
@@ -119,6 +114,7 @@ class AlertsDao(BaseDao):
             r.init_via_alert(session, a)
             ret_val.append(r)
         return ret_val
+
 
 def main():
     from ott.utils.db_utils import db_gtfs_rt

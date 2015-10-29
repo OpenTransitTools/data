@@ -7,6 +7,7 @@ from ott.utils import object_utils
 from ott.utils import json_utils
 from ott.utils import html_utils
 
+
 class Adverts(object):
     ''' Example content: http://trimet.org/map/adverts/
     '''
@@ -40,7 +41,6 @@ class Adverts(object):
         except Exception, e:
             log.warn("couldn't update the advert content: {}".format(e))
 
-
     def query(self, mode="rail", lang="en"):
         ''' 
         '''
@@ -58,4 +58,3 @@ class Adverts(object):
         l = html_utils.get_first_param(request, '_LOCALE_', lang)
         log.debug("mode={0}, lang={1}".format(m, l))
         return self.query(m, l)
-

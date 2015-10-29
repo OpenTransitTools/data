@@ -7,6 +7,7 @@ from .stop_dao import StopListDao
 
 from gtfsdb import RouteStop
 
+
 class RouteStopListDao(BaseDao):
     ''' List of RouteStopDaos for both directions of a route (or one direction if loop / uno dir)
     '''
@@ -45,7 +46,6 @@ class RouteStopDao(BaseDao):
         self.direction_id = direction_id
         self.direction_name = route.direction_0 if direction_id == 0 else route.direction_1
         self.stop_list = stops
-
 
     @classmethod
     def from_route_direction(cls, session, route_id, direction_id, agency="TODO", detailed=False, active_stops_only=True):

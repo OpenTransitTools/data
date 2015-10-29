@@ -30,10 +30,8 @@ class StopHeadsignDao(BaseDao):
         self.last_time = stop_time.departure_time
         self.num_trips = 0
 
-
     @classmethod
     def unique_id(cls, stop_time):
         hs = "{0}-{1}-{2}".format(stop_time.trip.route_id, stop_time.stop_id, stop_time.get_headsign())
         uid = object_utils.to_hash(hs)
         return uid 
-
