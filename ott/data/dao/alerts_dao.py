@@ -117,10 +117,3 @@ class AlertsDao(BaseDao):
         except Exception, e:
             log.warn(e)
         return ret_val
-
-
-def main():
-    from ott.utils.db_utils import db_gtfs_rt
-    session, engine = db_gtfs_rt()
-    a = AlertsListDao.get_route_alerts(session, '12')
-    print(a.to_json(True))

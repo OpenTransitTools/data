@@ -45,7 +45,7 @@ class RouteListDao(BaseDao):
         return ret_val
 
     @classmethod
-    def route_list(cls, session, agency="TODO", detailed=False, show_alerts=False):
+    def route_list(cls, session, agency="TODO", detailed=False, show_alerts=False, show_geo=False):
         ''' make a list of RouteDao objects by query to the database
         '''
         ret_val = None
@@ -56,7 +56,7 @@ class RouteListDao(BaseDao):
         route_list = []
         routes = cls.active_routes(session)
         for r in routes:
-            rte = RouteDao.from_route_orm(route=r, agency=agency, detailed=detailed, show_alerts=show_alerts)
+            rte = RouteDao.from_route_orm(route=r, agency=agency, detailed=detailed, show_alerts=show_alerts, show_geo=show_geo)
             route_list.append(rte)
 
         ret_val = RouteListDao(route_list)
@@ -78,6 +78,13 @@ class RouteDao(BaseDao):
         self.sort_order = r.route_sort_order
         self.url = getattr(r, 'route_url', None)
         self.add_route_dirs(r)
+
+    def copy_geom(self, r):
+        self.geom = None
+        try:
+            pass
+        except:
+            pass
 
     def add_route_dirs(self, route):
         ''' 
@@ -105,7 +112,7 @@ class RouteDao(BaseDao):
         self.direction_1 = dir1
 
     @classmethod
-    def from_route_orm(cls, route, agency="TODO", detailed=False, show_alerts=False):
+    def from_route_orm(cls, route, agency="TODO", detailed=False, show_alerts=False, show_geo=show_geo):
         alerts = []
         try:
             if show_alerts:

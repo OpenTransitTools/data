@@ -53,8 +53,8 @@ class StopScheduleDao(BaseDao):
         # step 2: get the stop
         stop = StopDao.from_stop_id(session=session, stop_id=stop_id, agency=agency, detailed=detailed, show_alerts=show_alerts, date=date)
 
-        # step 3: get the stop schedule if the first query with route_id doesn't return anything, lets try angain w/out a route
-        #import pdb; pdb.set_trace()
+        # step 3: get the stop schedule if the first query with route_id doesn't return anything, lets try again w/out a route
+        import pdb; pdb.set_trace()
         stop_times = []
         if stop:
             if route_id and stop.find_route(route_id):

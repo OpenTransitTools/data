@@ -12,7 +12,7 @@ requires = [
     'transaction',
     'gtfsdb',
     'protobuf',
-    'simplejson'
+    'simplejson',
 ]
 
 extras_require = dict(
