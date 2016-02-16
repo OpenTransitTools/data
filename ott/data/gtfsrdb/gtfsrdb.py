@@ -37,7 +37,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from urllib2 import urlopen
 from . import gtfs_realtime_pb2
-from . import alerts  
+from . import alerts
 from . import model
 from utils import getTrans
 from .model import *

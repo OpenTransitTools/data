@@ -13,6 +13,8 @@ requires = [
     'gtfsdb',
     'protobuf',
     'simplejson',
+    'usaddress', # crfsuite pre-built binaries -- https://github.com/estnltk/estnltk/tree/master/dist/python-crfsuite
+    # note: download 'raw' file from github, then use PowerShell to install
 ]
 
 extras_require = dict(
@@ -42,6 +44,7 @@ setup(
     author_email="info@opentransittools.org",
     dependency_links=[
         'git+https://github.com/OpenTransitTools/utils.git#egg=ott.utils-0.1.0',
+        'git+https://github.com/OpenTransitTools/gtfsdb.git#egg=gtfsdb-1.0.0',
     ],
     license="Mozilla-derived (http://opentransittools.com)",
     url='http://opentransittools.com',
@@ -56,6 +59,5 @@ setup(
     entry_points="""\
         [console_scripts]
         load_rt = ott.data.gtfsrdb.gtfsrdb:main
-        route_alerts = ott.data.dao.alerts_dao:main
     """,
 )

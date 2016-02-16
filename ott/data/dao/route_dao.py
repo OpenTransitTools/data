@@ -66,9 +66,11 @@ class RouteListDao(BaseDao):
 class RouteDao(BaseDao):
     ''' RouteDao data object ready for marshaling into JSON
     '''
-    def __init__(self, route, alerts):
+    def __init__(self, route, alerts, show_geo=False):
         super(RouteDao, self).__init__()
         self.copy(route)
+        if show_geo:
+            self.copy_geom(route)
         self.set_alerts(alerts)
 
     def copy(self, r):
@@ -82,7 +84,10 @@ class RouteDao(BaseDao):
     def copy_geom(self, r):
         self.geom = None
         try:
-            pass
+            #import pdb; pdb.set_trace()
+            import geoalchemy2.functions as func
+            g = r.session.scalar(func.ST_AsGeoJSON(r.geom))
+            self.geom = g
         except:
             pass
 
@@ -112,20 +117,20 @@ class RouteDao(BaseDao):
         self.direction_1 = dir1
 
     @classmethod
-    def from_route_orm(cls, route, agency="TODO", detailed=False, show_alerts=False, show_geo=show_geo):
+    def from_route_orm(cls, route, agency="TODO", detailed=False, show_alerts=False, show_geo=False):
         alerts = []
         try:
             if show_alerts:
                 alerts = AlertsDao.get_route_alerts(object_session(route), route.route_id)
         except Exception, e:
             log.warn(e)
-        ret_val = RouteDao(route, alerts)
+        ret_val = RouteDao(route, alerts, show_geo)
         return ret_val
 
     @classmethod
-    def from_route_id(cls, session, route_id, agency="TODO", detailed=False, show_alerts=False):
+    def from_route_id(cls, session, route_id, agency="TODO", detailed=False, show_alerts=False, show_geo=False):
         ''' make a RouteDao from a route_id and session
         '''
         log.info("query Route table")
         route = session.query(Route).filter(Route.route_id == route_id).one()
-        return cls.from_route_orm(route, agency=agency, detailed=detailed, show_alerts=show_alerts)
+        return cls.from_route_orm(route, agency=agency, detailed=detailed, show_alerts=show_alerts, show_geo=show_geo)
