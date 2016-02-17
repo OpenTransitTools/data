@@ -7,6 +7,8 @@ from .stop_dao import StopListDao
 
 from gtfsdb import RouteStop
 
+## TODO Refactor me!!!
+## TODO RouteStopsDao, RouteStopsDirectionDao, RoutePatternDao, RouteStopsPatternDao
 
 class RouteStopListDao(BaseDao):
     ''' List of RouteStopDaos for both directions of a route (or one direction if loop / uno dir)
@@ -32,6 +34,7 @@ class RouteStopListDao(BaseDao):
                 route = rs.route
                 route_stops.append(rs)
         ret_val = RouteStopListDao(route_stops, route)
+        ## TODO ... maybe show_geo cleanup so geo isn't in 3 places???
         return ret_val
 
 

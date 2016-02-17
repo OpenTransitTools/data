@@ -4,7 +4,9 @@ from gtfsdb import Database
 from gtfsdb import Stop, Route
 from ott.data.dao.route_dao import RouteDao
 from ott.data.dao.stop_dao import StopDao
-#    stop_dao
+from ott.data.dao.route_stop_dao import RouteStopDao
+from ott.data.dao.route_stop_dao import RouteStopListDao
+
 
 def main(argv):
     args, kwargs = scripts.get_args()
@@ -12,7 +14,8 @@ def main(argv):
 
     #import pdb; pdb.set_trace()
     #print RouteDao.from_route_id(db.session, "1", show_geo=True)
-    print StopDao.from_stop_id(db.session, "2", show_geo=True)
+    #print StopDao.from_stop_id(db.session, "2", show_geo=True)
+    print RouteStopListDao.from_route(db.session, "2", show_geo=True)
 
 def x():
     for s in db.session.query(Stop).limit(2):
