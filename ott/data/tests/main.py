@@ -14,9 +14,9 @@ def main(argv):
 
     #import pdb; pdb.set_trace()
     #print RouteDao.from_route_id(db.session, "1", show_geo=True)
-    #print StopDao.from_stop_id(db.session, "2", show_geo=True)
+    print StopDao.from_stop_id(db.session, "2", detailed=True, show_geo=True, show_alerts=True)
     #print RouteStopDao.from_route_direction(db.session, "2", "0", show_geo=True)
-    print RouteStopListDao.from_route(db.session, "1", show_geo=True)
+    #print RouteStopListDao.from_route(db.session, "1", show_geo=True)
 
 def x():
     for s in db.session.query(Stop).limit(2):
