@@ -22,7 +22,7 @@ class StopListDao(BaseDao):
         self.name  = name
 
     @classmethod
-    def from_routestops_orm(cls, route_stops, agency="TODO", detailed=False, show_alerts=False, active_stops_only=True):
+    def from_routestops_orm(cls, route_stops, agency="TODO", detailed=False, show_geo=False, show_alerts=False, active_stops_only=True):
         ''' make a StopListDao based on a route_stops object
         '''
         ret_val = None
@@ -31,7 +31,7 @@ class StopListDao(BaseDao):
             for rs in route_stops:
                 if active_stops_only and not rs.stop.is_active:
                     continue
-                stop = StopDao.from_stop_orm(stop=rs.stop, order=rs.order, agency=agency, detailed=detailed, show_alerts=show_alerts)
+                stop = StopDao.from_stop_orm(stop=rs.stop, order=rs.order, agency=agency, detailed=detailed, show_geo=show_geo, show_alerts=show_alerts)
                 stops.append(stop)
             ret_val = StopListDao(stops)
         return ret_val
@@ -46,7 +46,7 @@ class StopListDao(BaseDao):
         if stops and len(stops) > 0:
             stops = []
             for rs in route_stops:
-                stop = StopDao.from_stop_orm(stop=rs.stop, order=rs.order, agency=agency, detailed=detailed, show_alerts=show_alerts)
+                stop = StopDao.from_stop_orm(stop=rs.stop, order=rs.order, agency=agency, detailed=detailed, show_geo=show_geo, show_alerts=show_alerts)
                 stops.append(stop)
             ret_val = StopListDao(stops)
         return ret_val
@@ -130,11 +130,13 @@ class StopDao(BaseDao):
     "routes": [
         {"route_id":1, "name":"1-Vermont", "route_url":"http://trimet.org/schedules/r001.htm", "arrival_url":"http://trimet.org/arrivals/tracker.html?locationID=7765&route=001"}
     '''
-    def __init__(self, stop, amenities, routes, alerts=None, distance=0.0, order=0, date=None):
+    def __init__(self, stop, amenities, routes, alerts=None, distance=0.0, order=0, date=None, show_geo=False):
         super(StopDao, self).__init__()
 
         #import pdb; pdb.set_trace()
         self.copy_basics(self.__dict__, stop)
+        if show_geo:
+            self.geom = self.orm_to_geojson(stop)
         self.routes = routes
         self.distance = distance
         self.order = order
@@ -156,6 +158,7 @@ class StopDao(BaseDao):
         tgt['type'] = src.location_type
         tgt['lat'] = src.stop_lat
         tgt['lon'] = src.stop_lon
+
 
     def find_route(self, route_id):
         ''' @return: RouteDao from the list of routes
@@ -187,7 +190,7 @@ class StopDao(BaseDao):
                 self.short_names.append(sn)
 
     @classmethod
-    def from_stop_orm(cls, stop, distance=0.0, order=0, agency="TODO", detailed=False, show_alerts=False, date=None):
+    def from_stop_orm(cls, stop, distance=0.0, order=0, agency="TODO", detailed=False, show_geo=False, show_alerts=False, date=None):
         ''' make a StopDao from a stop object and session
 
             note that certain pages only need the simple stop info ... so we can 

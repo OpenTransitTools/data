@@ -18,7 +18,7 @@ class RouteStopListDao(BaseDao):
         self.count = len(rs)
 
     @classmethod
-    def from_route(cls, session, route_id, direction_id=None, agency="TODO", detailed=False, active_stops_only=True):
+    def from_route(cls, session, route_id, direction_id=None, agency="TODO", detailed=False, show_geo=False, active_stops_only=True):
         ''' make a StopListDao based on a route_stops object
         '''
         route = None
@@ -27,7 +27,7 @@ class RouteStopListDao(BaseDao):
         if direction_id:
             dirs = [direction_id]
         for d in dirs:
-            rs = RouteStopDao.from_route_direction(session, route_id, d, agency, detailed, active_stops_only)
+            rs = RouteStopDao.from_route_direction(session, route_id, d, agency, detailed, show_geo, active_stops_only)
             if rs and rs.route:
                 route = rs.route
                 route_stops.append(rs)
@@ -48,7 +48,7 @@ class RouteStopDao(BaseDao):
         self.stop_list = stops
 
     @classmethod
-    def from_route_direction(cls, session, route_id, direction_id, agency="TODO", detailed=False, active_stops_only=True):
+    def from_route_direction(cls, session, route_id, direction_id, agency="TODO", detailed=False, show_geo=False, active_stops_only=True):
         ''' make a RouteStopsDao from route_id, direction_id and session
         '''
         ret_val = None
@@ -62,8 +62,8 @@ class RouteStopDao(BaseDao):
         q = q.order_by(RouteStop.order)
         rs = q.all()
         if rs and len(rs) > 1:
-            route = RouteDao.from_route_orm(route=rs[0].route, agency=agency, detailed=detailed)
-            stops = StopListDao.from_routestops_orm(route_stops=rs, agency=agency, detailed=detailed, active_stops_only=active_stops_only)
+            route = RouteDao.from_route_orm(route=rs[0].route, agency=agency, detailed=detailed, show_geo=show_geo)
+            stops = StopListDao.from_routestops_orm(route_stops=rs, agency=agency, detailed=detailed, show_geo=show_geo, active_stops_only=active_stops_only)
             ret_val = RouteStopDao(route, stops, rs[0].direction_id)
 
         return ret_val

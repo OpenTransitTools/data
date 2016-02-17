@@ -68,28 +68,18 @@ class RouteDao(BaseDao):
     '''
     def __init__(self, route, alerts, show_geo=False):
         super(RouteDao, self).__init__()
-        self.copy(route)
-        if show_geo:
-            self.copy_geom(route)
+        self.copy(route, show_geo)
         self.set_alerts(alerts)
 
-    def copy(self, r):
+    def copy(self, r, show_geo):
         self.name = r.route_name
         self.route_id = r.route_id
         self.short_name = r.route_short_name
         self.sort_order = r.route_sort_order
         self.url = getattr(r, 'route_url', None)
         self.add_route_dirs(r)
-
-    def copy_geom(self, r):
-        self.geom = None
-        try:
-            #import pdb; pdb.set_trace()
-            import geoalchemy2.functions as func
-            g = r.session.scalar(func.ST_AsGeoJSON(r.geom))
-            self.geom = g
-        except:
-            pass
+        if show_geo:
+            self.geom = self.orm_to_geojson(r)
 
     def add_route_dirs(self, route):
         ''' 
