@@ -24,6 +24,7 @@ class RouteStopListDao(BaseDao):
         ''' make a StopListDao based on a route_stops object
         '''
         route = None
+        geo = None
         route_stops = []
         dirs = [0, 1]
         if direction_id:
@@ -32,9 +33,11 @@ class RouteStopListDao(BaseDao):
             rs = RouteStopDao.from_route_direction(session, route_id, d, agency, detailed, show_geo, active_stops_only)
             if rs and rs.route:
                 route = rs.route
+                # don't want to have multiple route objects (with large geojson) in the sub tree
+                if show_geo:
+                    rs.route = None
                 route_stops.append(rs)
         ret_val = RouteStopListDao(route_stops, route)
-        ## TODO ... maybe show_geo cleanup so geo isn't in 3 places???
         return ret_val
 
 
