@@ -40,6 +40,10 @@ class RouteStopListDao(BaseDao):
         ret_val = RouteStopListDao(route_stops, route)
         return ret_val
 
+    @classmethod
+    def from_params(cls, session, params, active_stops_only=True):
+        return cls.from_route(session, params.route_id, params.direction_id, params.agency, params.detailed, params.show_geo, active_stops_only)
+
 
 class RouteStopDao(BaseDao):
     ''' RouteStopsDao is a collection of a RouteDao, a DirectionDao and a list of StopListDao objects

@@ -1,6 +1,6 @@
 
 
-## NOTE: this won't work very well if we have a system running over time, 
+## NOTE: this won't work very well if we have a system running over time,
 ##       in that if we lose the connection to the databse, it won't reconnect...
 
 
