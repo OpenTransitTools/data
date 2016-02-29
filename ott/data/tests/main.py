@@ -11,6 +11,13 @@ from ott.data.dao.route_stop_dao import RouteStopListDao
 def main(argv):
     args, kwargs = scripts.get_args()
     db = Database(**kwargs)
+    stops = Stop.active_stop_ids(db.session)
+    for s in stops:
+        print s
+
+def xmain(argv):
+    args, kwargs = scripts.get_args()
+    db = Database(**kwargs)
 
     #import pdb; pdb.set_trace()
     print RouteDao.from_route_id(db.session, "1", show_geo=True)
