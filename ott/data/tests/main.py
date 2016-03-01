@@ -25,7 +25,7 @@ def stops():
 def stops_from_blocks():
     args, kwargs = scripts.get_args()
     db = Database(**kwargs)
-    stops = Block.unique_stop_ids(db.session)
+    stops = Block.active_stop_ids(db.session)
     for s in stops:
         print s
 
