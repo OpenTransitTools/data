@@ -1,7 +1,7 @@
 import sys
 from gtfsdb import scripts
 from gtfsdb import Database
-from gtfsdb import Stop, Route, Blocks
+from gtfsdb import Stop, Route, Block
 from ott.data.dao.route_dao import RouteDao
 from ott.data.dao.stop_dao import StopDao
 from ott.data.dao.route_stop_dao import RouteStopDao
@@ -25,7 +25,7 @@ def stops():
 def stops_from_blocks():
     args, kwargs = scripts.get_args()
     db = Database(**kwargs)
-    stops = Blocks.unique_stop_ids(db.session)
+    stops = Block.unique_stop_ids(db.session)
     for s in stops:
         print s
 
