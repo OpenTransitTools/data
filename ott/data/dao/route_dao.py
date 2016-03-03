@@ -82,7 +82,7 @@ class RouteDao(BaseDao):
             self.geom = self.orm_to_geojson(r)
 
     def add_route_dirs(self, route):
-        ''' 
+        ''' add the direction names to route
         '''
         # step 0: two direction name vars
         dir0=None
