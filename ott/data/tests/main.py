@@ -4,7 +4,7 @@ from gtfsdb import Database
 from gtfsdb import Stop, Route, RouteStop, Block
 from ott.data.dao.route_dao import RouteDao
 from ott.data.dao.stop_dao import StopDao
-from ott.data.dao.stop_list_dao import StopListDao
+from ott.data.dao.stop_dao import StopListDao
 from ott.data.dao.route_stop_dao import RouteStopDao
 from ott.data.dao.route_stop_dao import RouteStopListDao
 
@@ -22,8 +22,15 @@ def routes_stops(db, r="100", d="1"):
     q = q.order_by(RouteStop.order)
     rs = q.all()
     #route = RouteDao.from_route_orm(route=rs[0].route, detailed=True, show_geo=False)
-    stops = StopListDao.from_routestops_orm(route_stops=rs, detailed=True, show_geo=False, active_stops_only=True)
-
+    stops = StopListDao.from_routestops_orm(route_stops=rs, detailed=False, show_geo=False, active_stops_only=False)
+    print stops
+    '''
+    for r in rs:
+        stop=r.stop
+        order=r.order
+        s = StopDao(stop, None, None, None, None, order, None, None)
+        print s.__dict__
+    '''
 
 def stops(db):
     stops = Stop.active_stop_ids(db.session)
