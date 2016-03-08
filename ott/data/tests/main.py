@@ -20,17 +20,15 @@ def routes_stops(db, r="100", d="1"):
         RouteStop.direction_id == d,
     )
     q = q.order_by(RouteStop.order)
-    rs = q.all()
-    #route = RouteDao.from_route_orm(route=rs[0].route, detailed=True, show_geo=False)
-    stops = StopListDao.from_routestops_orm(route_stops=rs, detailed=False, show_geo=False, active_stops_only=False)
-    print stops
-    '''
-    for r in rs:
-        stop=r.stop
-        order=r.order
-        s = StopDao(stop, None, None, None, None, order, None, None)
-        print s.__dict__
-    '''
+    route_stops = q.all()
+
+    ## NOTE: two perf issues ... first is stop.is_active ... that does N table scans on the trip table
+    #stops = StopListDao.from_routestops_orm(route_stops=route_stops, detailed=True, show_geo=False, active_stops_only=True)
+
+    # Trip Table Scans
+    for s in route_stops:
+        print s.stop.is_active
+        #print s.__dict__
 
 def stops(db):
     stops = Stop.active_stop_ids(db.session)

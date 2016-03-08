@@ -11,4 +11,4 @@ load gtfs
   4. git update-index --assume-unchanged .pydevproject
   5. SQL LITE: bin/gtfsdb-load --database_url sqlite://gtfs.db http://developer.trimet.org/schedule/gtfs.zip
      - or -
-     PostGIS:  bin/gtfsdb-load --is_geospatial --schema ott --database_url sqlite://gtfs.db http://developer.trimet.org/schedule/gtfs.zip
+     PostGIS:  bin/gtfsdb-load --is_geospatial --schema ott --database_url postgresql://postgres@127.0.0.1:5432/postgres http://developer.trimet.org/schedule/gtfs.zip
