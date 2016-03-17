@@ -58,22 +58,17 @@ class RouteStopDao(BaseDao):
         self.stop_list = stops
 
     @classmethod
-    def from_route_direction(cls, session, route_id, direction_id, agency="TODO", detailed=False, show_geo=False, active_stops_only=True):
+    def from_route_direction(cls, session, route_id, direction_id, agency_id=None, detailed=False, show_geo=False, active_stops_only=True):
         ''' make a RouteStopsDao from route_id, direction_id and session
         '''
         ret_val = None
 
         #import pdb; pdb.set_trace()
         log.info("query RouteStop table")
-        q = session.query(RouteStop).filter(
-                           RouteStop.route_id == route_id,
-                           RouteStop.direction_id == direction_id
-                     )
-        q = q.order_by(RouteStop.order)
-        rs = q.all()
+        rs = RouteStop.active_stops(session, route_id, direction_id) #, agency_id) #TODO ... fix agency id
         if rs and len(rs) > 1:
-            route = RouteDao.from_route_orm(route=rs[0].route, agency=agency, detailed=detailed, show_geo=show_geo)
-            stops = StopListDao.from_routestops_orm(route_stops=rs, agency=agency, detailed=detailed, show_geo=show_geo, active_stops_only=active_stops_only)
+            route = RouteDao.from_route_orm(route=rs[0].route, agency=agency_id, detailed=detailed, show_geo=show_geo)
+            stops = StopListDao.from_routestops_orm(route_stops=rs, agency=agency_id, detailed=detailed, show_geo=show_geo, active_stops_only=active_stops_only)
             ret_val = RouteStopDao(route, stops, rs[0].direction_id)
 
         return ret_val

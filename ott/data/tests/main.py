@@ -1,4 +1,5 @@
 import sys
+import datetime
 from gtfsdb import scripts
 from gtfsdb import Database
 from gtfsdb import Stop, Route, RouteStop, Block
@@ -27,7 +28,8 @@ def routes_stops(db, r="100", d="1"):
 
     # Trip Table Scans
     for s in route_stops:
-        print s.stop.is_active
+        #print s.stop.is_active()  # slow method ... has to check schedule
+        print s.is_active(datetime.date(2015, 6, 6)) # faster method ..
         #print s.__dict__
 
 def stops(db):
