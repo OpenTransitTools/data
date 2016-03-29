@@ -56,9 +56,10 @@ class StopListDao(BaseDao):
         ''' make a StopListDao based on a route_stops object
             @params: lon, lat, limit=10, name=None, agency="TODO", detailed=False): 
         '''
+        #import pdb; pdb.set_trace()
 
         # step 1: make POINT(x,y)
-        point = geo_params.to_point()
+        point = geo_params.to_point_srid()
 
         # step 2: query database via geo routines for N of stops cloesst to the POINT
         log.info("query Stop table")  
@@ -87,6 +88,7 @@ class StopListDao(BaseDao):
     def sort_list_by_distance(cls, stop_list, order=True):
         ''' sort a python list [] by distance, and assign order
         '''
+
         # step 1: sort the list
         stop_list.sort(key=lambda x: x.distance, reverse=False)
 
