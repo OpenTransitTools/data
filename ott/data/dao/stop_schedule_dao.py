@@ -37,8 +37,10 @@ class StopScheduleDao(BaseDao):
 
     @classmethod
     def get_stop_schedule(cls, session, stop_id, date=None, route_id=None, agency="TODO", detailed=False, show_alerts=False):
+        ''' factory returns full-on schedule DAO for this stop, on this date.  detailed flag gets all meta-data, whereas
+            show_alerts reduces the queries down to just alerts for this stop (and routes hitting the stop).
         '''
-        '''
+        #import pdb; pdb.set_trace()
         ret_val = None
 
         headsigns     = {}
@@ -78,7 +80,6 @@ class StopScheduleDao(BaseDao):
                         headsigns[id] = h
 
                         # check to see if we have an alert for this headsign
-                        #import pdb; pdb.set_trace()
                         r = stop.find_route(h.route_id)
                         if r and r.alerts and len(r.alerts) > 0:
                             h.has_alerts = True

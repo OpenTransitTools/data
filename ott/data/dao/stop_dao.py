@@ -62,7 +62,7 @@ class StopListDao(BaseDao):
         point = geo_params.to_point_srid()
 
         # step 2: query database via geo routines for N of stops cloesst to the POINT
-        log.info("query Stop table")  
+        log.info("query Stop table")
         q = session.query(Stop)
         q = q.filter(Stop.location_type == 0)
         q = q.order_by(Stop.geom.distance_centroid(point))
@@ -223,11 +223,13 @@ class StopDao(BaseDao):
                     # step 1b.3: build the route object for the stop's route (could be detailed and with alerts)
                     try:
                         rs = RouteDao.from_route_orm(route=r, agency=agency, detailed=detailed, show_alerts=show_alerts)
-                    except:
+                    except Exception, e:
+                        log.info(e)
                         # step 1b.4: we got an error above, so let's try to get minimal route information
                         try:
                             rs = RouteDao.from_route_orm(route=r)
-                        except:
+                        except Exception, e:
+                            log.info(e)
                             log.info("couldn't get route information")
 
                     # step 1b.5: build the list of routes
@@ -257,8 +259,9 @@ class StopDao(BaseDao):
                 pass
             stop = q.one()
             ret_val = cls.from_stop_orm(stop=stop, distance=distance, agency=agency, detailed=detailed, show_geo=show_geo, show_alerts=show_alerts, date=date)
-        except:
-            pass
+        except Exception, e:
+            log.info(e)
+
         return ret_val
 
     @classmethod
