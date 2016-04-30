@@ -73,6 +73,13 @@ class AlertsDao(BaseDao):
         object_utils.update_object(self, src=alert.Alert)
         self.set_dates(alert.Alert.start, alert.Alert.end)
 
+        # TODO: trimet hack (eliminate me)
+        if "trimet.org" in self.url:
+            self.url = "http://trimet.org/#alerts/"
+            if self.route_id:
+                self.url = "{0}{1}".format(self.url, self.route_id)
+
+
     @classmethod
     def get_route_alerts_via_orm(cls, route):
         ''' query GTFSrDB, and return a list of AlertResponse objects for the route
