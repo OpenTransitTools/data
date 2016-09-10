@@ -33,8 +33,17 @@ def routes_stops(db, r="100", d="1"):
         #print s.__dict__
 
 def stop_info(db):
-    stop = Stop.from_stop_id(db.session, stop_id="11939", detailed=True)
+    """ bin/test_main -d postgresql+psycopg2://geoserve@maps7:5432/trimet -s ott x
+        http://trimet.org/ride/stop.html?id=11939
+    """
+    #import pdb; pdb.set_trace()
+    stop = StopDao.from_stop_id(db.session, stop_id="11939", detailed=True)
     print stop
+
+    #stop.
+    #route_stops = RouteStop.active_unique_routes_at_stop(stop.session, stop_id=stop.stop_id, date=date)
+
+
 
 def stops(db):
     stops = Stop.active_stop_ids(db.session)

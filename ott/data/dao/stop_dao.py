@@ -32,7 +32,7 @@ class StopListDao(BaseDao):
             for rs in route_stops:
                 if active_stops_only and not rs.stop.is_active:
                     continue
-                stop = StopDao.from_stop_orm(stop=rs.stop, order=rs.order, agency=agency, detailed=detailed, show_geo=show_geo, show_alerts=show_alerts)
+                stop = StopDao.from_stop_orm(stop_orm=rs.stop, order=rs.order, agency=agency, detailed=detailed, show_geo=show_geo, show_alerts=show_alerts)
                 stops.append(stop)
             ret_val = StopListDao(stops)
         return ret_val
@@ -47,7 +47,7 @@ class StopListDao(BaseDao):
         if stops and len(stops) > 0:
             stops = []
             for rs in route_stops:
-                stop = StopDao.from_stop_orm(stop=rs.stop, order=rs.order, agency=agency, detailed=detailed, show_geo=show_geo, show_alerts=show_alerts)
+                stop = StopDao.from_stop_orm(stop_orm=rs.stop, order=rs.order, agency=agency, detailed=detailed, show_geo=show_geo, show_alerts=show_alerts)
                 stops.append(stop)
             ret_val = StopListDao(stops)
         return ret_val
@@ -76,8 +76,8 @@ class StopListDao(BaseDao):
             dist = num_utils.distance_mi(s.stop_lat, s.stop_lon, geo_params.lat, geo_params.lon)
 
             # step 3c: make stop...plus add stop route short name
-            stop = StopDao.from_stop_orm(stop=s, distance=dist, agency=geo_params.agency, detailed=geo_params.detailed)
-            stop.add_route_short_names(stop_orm=s)
+            stop = StopDao.from_stop_orm(stop_orm=s, distance=dist, agency=geo_params.agency, detailed=geo_params.detailed)
+            stop.get_route_short_names(stop_orm=s)
             stops.append(stop)
 
         # step 4: sort list then return
@@ -139,6 +139,7 @@ class StopDao(BaseDao):
         #import pdb; pdb.set_trace()
         self.copy_basics(self.__dict__, stop, show_geo)
         self.routes = routes
+        self.short_names = None
         self.distance = distance
         self.order = order
         self.set_alerts(alerts)
@@ -181,18 +182,21 @@ class StopDao(BaseDao):
         else:
             self.has_amenities = False
 
-    def add_route_short_names(self, stop_orm):
+    def get_route_short_names(self, stop_orm):
         ''' add an array of short names to the DAO
         '''
-        if stop_orm and stop_orm.routes is not None and len(stop_orm.routes) > 0:
-            self.short_names = []
-            stop_orm.routes.sort(key=lambda x: x.route_sort_order, reverse=False)
-            for r in stop_orm.routes:
+        if not self.short_names:
+            routes = self.routes
+            if routes is None:
+                routes = RouteStop.active_unique_routes_at_stop(stop_orm.session, stop_id=stop_orm.stop_id)
+                routes.sort(key=lambda x: x.route_sort_order, reverse=False)
+            for r in routes:
                 sn = {'route_id':r.route_id, 'route_short_name':transit_utils.make_short_name(r)}
                 self.short_names.append(sn)
+        return self.short_names
 
     @classmethod
-    def from_stop_orm(cls, stop, distance=0.0, order=0, agency="TODO", detailed=False, show_geo=False, show_alerts=False, date=None):
+    def from_stop_orm(cls, stop_orm, distance=0.0, order=0, agency="TODO", detailed=False, show_geo=False, show_alerts=False, date=None):
         ''' make a StopDao from a stop object and session
 
             note that certain pages only need the simple stop info ... so we can 
@@ -207,40 +211,40 @@ class StopDao(BaseDao):
         # step 1: if we want full details on this stop, include features and amenities, etc...
         if detailed:
 
-            # step 1a: get list of stop amenities
+            # step 2: get list of stop amenities
             amenities = []
-            for f in stop.stop_features:
+            for f in stop_orm.stop_features:
                 if f and f.feature_name:
                     amenities.append(f.feature_name)
 
-            # step 1b.1: get the routes for a stop
-            if routes is not None:
-                route_stops = RouteStop.active_unique_routes_at_stop(stop.session, stop_id=stop['stop_id'], agency_id=stop['agency_id'], date=date)
-                for r in route_stops:
-                    rs = None
+            # step 3a: get the routes for a stop
+            route_stops = RouteStop.active_unique_routes_at_stop(stop_orm.session, stop_id=stop_orm.stop_id, date=date)
+            for r in route_stops:
+                rs = None
 
-                    # step 1b.2: build the route object for the stop's route (could be detailed and with alerts)
+                # step 3b: build the route object for the stop's route (could be detailed and with alerts)
+                try:
+                    rs = RouteDao.from_route_orm(route=r, agency=agency, detailed=detailed, show_alerts=show_alerts)
+                except Exception, e:
+                    log.info(e)
+                    # step 3c: we got an error above, so let's try to get minimal route information
                     try:
-                        rs = RouteDao.from_route_orm(route=r, agency=agency, detailed=detailed, show_alerts=show_alerts)
+                        rs = RouteDao.from_route_orm(route=r)
                     except Exception, e:
                         log.info(e)
-                        # step 1b.3: we got an error above, so let's try to get minimal route information
-                        try:
-                            rs = RouteDao.from_route_orm(route=r)
-                        except Exception, e:
-                            log.info(e)
-                            log.info("couldn't get route information")
+                        log.info("couldn't get route information")
 
-                    # step 1b.4: build the list of routes
-                    if rs:
-                        routes.append(rs)
+                # step 3d: build the list of routes
+                if rs:
+                    routes.append(rs)
+            routes.sort(key=lambda x: x.sort_order, reverse=False)
 
         # TODO: shut off, as TriMet doesn't use route alerts right now (and I can't afford more /q)
         #if show_alerts:
         #    alerts = AlertsDao.get_stop_alerts(object_session(stop), stop.stop_id)
 
-        # step 2: query db for route ids serving this stop...
-        ret_val = StopDao(stop, amenities, routes, alerts, distance, order, date, show_geo)
+        # step 4: query db for route ids serving this stop...
+        ret_val = StopDao(stop_orm, amenities, routes, alerts, distance, order, date, show_geo)
         return ret_val
 
 
@@ -257,7 +261,7 @@ class StopDao(BaseDao):
                 q = q.options(joinedload("stop_features"))
                 pass
             stop = q.one()
-            ret_val = cls.from_stop_orm(stop=stop, distance=distance, agency=agency, detailed=detailed, show_geo=show_geo, show_alerts=show_alerts, date=date)
+            ret_val = cls.from_stop_orm(stop_orm=stop, distance=distance, agency=agency, detailed=detailed, show_geo=show_geo, show_alerts=show_alerts, date=date)
         except Exception, e:
             log.info(e)
 
