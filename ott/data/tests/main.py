@@ -32,6 +32,10 @@ def routes_stops(db, r="100", d="1"):
         print s.is_active(datetime.date(2015, 6, 6)) # faster method ..
         #print s.__dict__
 
+def stop_info(db):
+    stop = Stop.from_stop_id(db.session, stop_id="11939", detailed=True)
+    print stop
+
 def stops(db):
     stops = Stop.active_stop_ids(db.session)
     for s in stops:
@@ -54,12 +58,13 @@ def db_queries(db):
     for r in db.session.query(Route).limit(2):
         print r.route_name
 
-def main(argv):
+def main():
     args, kwargs = scripts.get_args()
     db = Database(**kwargs)
 
     #stops_from_blocks(db)
-    routes_stops(db)
+    #routes_stops(db)
+    stop_info(db)
 
 if __name__ == "__main__":
-    main(sys.argv)
+    main()

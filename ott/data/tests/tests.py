@@ -16,7 +16,6 @@ class TestStuff(unittest.TestCase):
         self.assertGreaterEqual(len(a.content), 2)
         self.assertRegexpMatches(q[0]['content'], "trimet.org")
 
-
     def test_fares(self):
         f = Fares("http://trimet.org/map/fares/fares.json")
         q = f.query()

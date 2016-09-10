@@ -59,5 +59,6 @@ setup(
     entry_points="""\
         [console_scripts]
         load_rt = ott.data.gtfsrdb.gtfsrdb:main
+        test_main = ott.data.tests.main:main
     """,
 )

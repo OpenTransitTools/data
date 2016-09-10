@@ -7,6 +7,7 @@ from ott.utils.dao.base import BaseDao
 from .route_dao  import RouteDao
 
 from gtfsdb import Stop
+from gtfsdb import RouteStop
 
 from ott.utils import num_utils
 from ott.utils import transit_utils
@@ -213,26 +214,24 @@ class StopDao(BaseDao):
                     amenities.append(f.feature_name)
 
             # step 1b.1: get the routes for a stop
-            if stop.routes is not None:
-                for r in stop.routes:
+            if routes is not None:
+                route_stops = RouteStop.active_unique_routes_at_stop(stop.session, stop_id=stop['stop_id'], agency_id=stop['agency_id'], date=date)
+                for r in route_stops:
                     rs = None
-                    # step 1b.2: filter routes based on date
-                    if date and (date < r.start_date or date > r.end_date):
-                        continue
 
-                    # step 1b.3: build the route object for the stop's route (could be detailed and with alerts)
+                    # step 1b.2: build the route object for the stop's route (could be detailed and with alerts)
                     try:
                         rs = RouteDao.from_route_orm(route=r, agency=agency, detailed=detailed, show_alerts=show_alerts)
                     except Exception, e:
                         log.info(e)
-                        # step 1b.4: we got an error above, so let's try to get minimal route information
+                        # step 1b.3: we got an error above, so let's try to get minimal route information
                         try:
                             rs = RouteDao.from_route_orm(route=r)
                         except Exception, e:
                             log.info(e)
                             log.info("couldn't get route information")
 
-                    # step 1b.5: build the list of routes
+                    # step 1b.4: build the list of routes
                     if rs:
                         routes.append(rs)
 
