@@ -36,12 +36,20 @@ def stop_info(db):
     """ bin/test_main -d postgresql+psycopg2://geoserve@maps7:5432/trimet -s ott x
         http://trimet.org/ride/stop.html?id=11939
     """
-    #import pdb; pdb.set_trace()
-    stop = StopDao.from_stop_id(db.session, stop_id="11939", detailed=True)
-    print stop
 
-    #stop.
-    #route_stops = RouteStop.active_unique_routes_at_stop(stop.session, stop_id=stop.stop_id, date=date)
+    stop_orm = StopDao.query_orm_for_stop(db.session, "11939", detailed=True)
+    stop = StopDao.from_stop_orm(stop_orm, detailed=True)
+    print stop
+    print stop.get_route_short_names(stop_orm)
+
+    # turning detailed off will have different orm objects for short_names call
+    # MAX is also different
+    stop_orm = StopDao.query_orm_for_stop(db.session, "9624")
+    stop = StopDao.from_stop_orm(stop_orm)
+    print stop
+    print stop.get_route_short_names(stop_orm)
+
+
 
 
 

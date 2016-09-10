@@ -37,6 +37,7 @@ class StopListDao(BaseDao):
             ret_val = StopListDao(stops)
         return ret_val
 
+    """ I THINK THIS METHOD IS WAY BROKEN...
     @classmethod
     def all_stops(cls, session, agency="TODO", detailed=False, show_alerts=False):
         ''' make a StopListDao all stops...
@@ -51,6 +52,7 @@ class StopListDao(BaseDao):
                 stops.append(stop)
             ret_val = StopListDao(stops)
         return ret_val
+    """
 
     @classmethod
     def nearest_stops(cls, session, geo_params):
@@ -183,16 +185,23 @@ class StopDao(BaseDao):
             self.has_amenities = False
 
     def get_route_short_names(self, stop_orm):
-        ''' add an array of short names to the DAO
+        ''' add an array of short names to this DAO
         '''
+        # step 1: create a short_names list if we haven't already
         if not self.short_names:
+            self.short_names = []
+
+            # step 2: use either route-dao list or find the active stops
             routes = self.routes
-            if routes is None:
+            if routes is None or len(routes) == 0:
                 routes = RouteStop.active_unique_routes_at_stop(stop_orm.session, stop_id=stop_orm.stop_id)
                 routes.sort(key=lambda x: x.route_sort_order, reverse=False)
+
+            # step 3: build the short names list
             for r in routes:
                 sn = {'route_id':r.route_id, 'route_short_name':transit_utils.make_short_name(r)}
                 self.short_names.append(sn)
+
         return self.short_names
 
     @classmethod
@@ -247,6 +256,17 @@ class StopDao(BaseDao):
         ret_val = StopDao(stop_orm, amenities, routes, alerts, distance, order, date, show_geo)
         return ret_val
 
+    @classmethod
+    def query_orm_for_stop(cls, session, stop_id, detailed=False):
+        """simple utility for quering a stop from gtfsdb
+        """
+        q = session.query(Stop)
+        q = q.filter(Stop.stop_id == stop_id)
+        if detailed:
+            q = q.options(joinedload("stop_features"))
+            pass
+        stop_orm = q.one()
+        return stop_orm
 
     @classmethod
     def from_stop_id(cls, session, stop_id, distance=0.0, agency="TODO", detailed=False, show_geo=False, show_alerts=False, date=None):
@@ -255,12 +275,7 @@ class StopDao(BaseDao):
         ret_val = None
         try:
             log.info("query Stop table")
-            q = session.query(Stop)
-            q = q.filter(Stop.stop_id == stop_id)
-            if detailed:
-                q = q.options(joinedload("stop_features"))
-                pass
-            stop = q.one()
+            stop = cls.query_orm_for_stop(session, stop_id, detailed)
             ret_val = cls.from_stop_orm(stop_orm=stop, distance=distance, agency=agency, detailed=detailed, show_geo=show_geo, show_alerts=show_alerts, date=date)
         except Exception, e:
             log.info(e)
