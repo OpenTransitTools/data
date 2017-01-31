@@ -12,13 +12,12 @@ class CancelledRoutes(object):
         '''
         log.info("create an instance of {0}".format(self.__class__.__name__))
         self.url = url
+        self.content = None
+        self.timeout = 60
         if timeout_mins:
             self.timeout = timeout_mins
-        else:
-            self.timeout = 60
 
         self.last_update = datetime.now() - timedelta(minutes = (self.timeout+10))
-        self.content = []
         self.update()
 
     def update(self):
@@ -31,7 +30,7 @@ class CancelledRoutes(object):
                     self.content = c
         except Exception, e:
             log.warn("couldn't update the fare content: {}".format(e))
- 
+
     def query(self, def_val=None):
         ''' 
         '''
@@ -39,6 +38,8 @@ class CancelledRoutes(object):
         ret_val = def_val
         try:
             self.update()
+            if self.content:
+                ret_val = self.content
         except Exception, e:
             log.warn("content query error: {}".format(e))
         return ret_val
