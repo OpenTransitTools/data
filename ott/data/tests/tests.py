@@ -4,6 +4,7 @@ from ott.data.content.adverts import Adverts
 from ott.data.content.fares import Fares
 from ott.data.content.cancelled_routes import CancelledRoutes
 
+
 class TestStuff(unittest.TestCase):
     def setUp(self):
         pass
@@ -25,6 +26,5 @@ class TestStuff(unittest.TestCase):
 
     def test_cancelled_routes(self):
         f = CancelledRoutes("http://dev.trimet.org/map/cancelled_routes.json")
-        q = f.query()
-        self.assertGreaterEqual(len(f.content), 2)
-
+        print f
+        self.assertGreaterEqual(f.content, 2)

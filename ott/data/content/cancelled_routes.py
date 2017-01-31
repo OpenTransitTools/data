@@ -44,3 +44,16 @@ class CancelledRoutes(object):
             log.warn("content query error: {}".format(e))
         return ret_val
 
+    def __str__(self, list_sep=","):
+        ret_val = ""
+        if self.content:
+            if isinstance(self.content, (list, tuple)):
+                for c in self.content:
+                    if len(ret_val) > 0:
+                        ret_val = ret_val + list_sep
+                    ret_val = ret_val + str(c)
+            elif isinstance(self.content, str):
+                ret_val = self.content
+            else:
+                ret_val = str(self.content)
+        return ret_val
