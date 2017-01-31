@@ -15,6 +15,7 @@ def routes(db):
     for r in routes:
         print r
 
+
 def routes_stops(db, r="100", d="1"):
     q = db.session.query(RouteStop).filter(
         RouteStop.route_id == r,
@@ -31,6 +32,7 @@ def routes_stops(db, r="100", d="1"):
         #print s.stop.is_active()  # slow method ... has to check schedule
         print s.is_active(datetime.date(2015, 6, 6)) # faster method ..
         #print s.__dict__
+
 
 def stop_info(db):
     """ bin/test_main -d postgresql+psycopg2://geoserve@maps7:5432/trimet -s ott x
@@ -50,18 +52,17 @@ def stop_info(db):
     print stop.get_route_short_names(stop_orm)
 
 
-
-
-
 def stops(db):
     stops = Stop.active_stop_ids(db.session)
     for s in stops:
         print s
 
+
 def stops_from_blocks(db):
     stops = Block.active_stop_ids(db.session)
     for s in stops:
         print s
+
 
 def db_queries(db):
     #import pdb; pdb.set_trace()
@@ -75,6 +76,7 @@ def db_queries(db):
     for r in db.session.query(Route).limit(2):
         print r.route_name
 
+
 def main():
     args, kwargs = scripts.get_args()
     db = Database(**kwargs)
@@ -82,6 +84,11 @@ def main():
     #stops_from_blocks(db)
     #routes_stops(db)
     stop_info(db)
+
+
+def main():
+    stop_info(db)
+
 
 if __name__ == "__main__":
     main()

@@ -11,13 +11,13 @@ from ott.utils import html_utils
 class Adverts(object):
     ''' Example content: http://trimet.org/map/adverts/
     '''
-    def __init__(self, advert_url, avert_timeout_mins=30):
+    def __init__(self, advert_url, timeout_mins=30):
         '''
         '''
         log.info("create an instance of {0}".format(self.__class__.__name__))
         self.advert_url = advert_url
-        if avert_timeout_mins:
-            self.avert_timeout = avert_timeout_mins
+        if timeout_mins:
+            self.avert_timeout = timeout_mins
         else:
             self.avert_timeout = 30
         self.last_update = datetime.now() - timedelta(minutes = (self.avert_timeout+10))
