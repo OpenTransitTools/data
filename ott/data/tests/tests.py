@@ -27,5 +27,4 @@ class TestStuff(unittest.TestCase):
         f = CancelledRoutes("http://dev.trimet.org/map/cancelled_routes.json")
         q = f.query()
         self.assertGreaterEqual(len(f.content), 2)
-        self.assertEqual(q, '$2.50')
 
