@@ -1,13 +1,14 @@
+from ott.utils import json_utils
+
 from datetime import datetime
 from datetime import timedelta
 import logging
 log = logging.getLogger(__file__)
 
-from ott.utils import json_utils
 
 class CancelledRoutes(object):
 
-    def __init__(self, url, timeout_mins=60):
+    def __init__(self, url, timeout_mins=None):
         '''
         '''
         log.info("create an instance of {0}".format(self.__class__.__name__))
@@ -22,11 +23,12 @@ class CancelledRoutes(object):
 
     def update(self):
         try:
-            if self.content is None or datetime.now() - self.last_update > timedelta(minutes = self.timeout):
+            tdiff = datetime.now() - self.last_update
+            if self.content is None or tdiff > timedelta(minutes=self.timeout):
                 log.debug("updating the content")
                 self.last_update = datetime.now()
                 c = json_utils.stream_json(self.url)
-                if c:
+                if c is not None:
                     self.content = c
         except Exception, e:
             log.warn("couldn't update the fare content: {}".format(e))
@@ -34,18 +36,19 @@ class CancelledRoutes(object):
     def query(self, def_val=None):
         ''' 
         '''
-        #import pdb; pdb.set_trace()
         ret_val = def_val
         try:
             self.update()
-            if self.content:
+            if self.content is not None:
                 ret_val = self.content
         except Exception, e:
             log.warn("content query error: {}".format(e))
         return ret_val
 
     def __str__(self, list_sep=","):
+        # import pdb; pdb.set_trace()
         ret_val = ""
+        self.update()
         if self.content:
             if isinstance(self.content, (list, tuple)):
                 for c in self.content:
