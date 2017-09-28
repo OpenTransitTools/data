@@ -65,22 +65,32 @@ class StopListDao(BaseDao):
         point = geo_params.to_point_srid()
 
         # step 2: query database via geo routines for N of stops cloesst to the POINT
+        #         note we grab 10 extra in the /Q, because some stops might not be active (no routes), thus we filter them below
         log.info("query Stop table")
+        limit = int(geo_params.limit)
         q = session.query(Stop)
         q = q.filter(Stop.location_type == 0)
         q = q.order_by(Stop.geom.distance_centroid(point))
-        q = q.limit(geo_params.limit)
+        q = q.limit(limit + 10)
 
         # step 3a: loop thru nearest N stops
         stops = []
         for s in q:
-            # step 3b: calculate distance 
+            # step 3a: make sure this stop has routes assigned
+            if len(s.routes) < 1:
+                continue
+
+            # step 3b: calculate distance
             dist = num_utils.distance_mi(s.stop_lat, s.stop_lon, geo_params.lat, geo_params.lon)
 
             # step 3c: make stop...plus add stop route short name
             stop = StopDao.from_stop_orm(stop_orm=s, distance=dist, agency=geo_params.agency, detailed=geo_params.detailed)
             stop.get_route_short_names(stop_orm=s)
             stops.append(stop)
+
+            # step 3d: stop if we have enough stops to return
+            if len(stops) >= limit:
+                break
 
         # step 4: sort list then return
         stops = cls.sort_list_by_distance(stops)
