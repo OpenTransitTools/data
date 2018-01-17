@@ -14,8 +14,8 @@ from ott.utils import transit_utils
 
 
 class StopListDao(BaseDao):
-    ''' List of StopDao data objects ... both list and contents ready for marshaling into JSON
-    '''
+    """ List of StopDao data objects ... both list and contents ready for marshaling into JSON
+    """
     def __init__(self, stops, name=None):
         super(StopListDao, self).__init__()
         self.stops = stops
@@ -24,8 +24,8 @@ class StopListDao(BaseDao):
 
     @classmethod
     def from_routestops_orm(cls, route_stops, agency="TODO", detailed=False, show_geo=False, show_alerts=False, active_stops_only=True):
-        ''' make a StopListDao based on a route_stops object
-        '''
+        """ make a StopListDao based on a route_stops object
+        """
         ret_val = None
         if route_stops and len(route_stops) > 0:
             stops = []
@@ -40,8 +40,8 @@ class StopListDao(BaseDao):
     """ I THINK THIS METHOD IS WAY BROKEN...
     @classmethod
     def all_stops(cls, session, agency="TODO", detailed=False, show_alerts=False):
-        ''' make a StopListDao all stops...
-        '''
+        """ make a StopListDao all stops...
+        """
         ret_val = None
         q = session.query(Stop)
         stops = q.all() 
@@ -56,10 +56,10 @@ class StopListDao(BaseDao):
 
     @classmethod
     def nearest_stops(cls, session, geo_params):
-        ''' make a StopListDao based on a route_stops object
+        """ make a StopListDao based on a route_stops object
             @params: lon, lat, limit=10, name=None, agency="TODO", detailed=False): 
-        '''
-        #import pdb; pdb.set_trace()
+        """
+        # import pdb; pdb.set_trace()
 
         # step 1: make POINT(x,y)
         point = geo_params.to_point_srid()
@@ -99,8 +99,8 @@ class StopListDao(BaseDao):
 
     @classmethod
     def sort_list_by_distance(cls, stop_list, order=True):
-        ''' sort a python list [] by distance, and assign order
-        '''
+        """ sort a python list [] by distance, and assign order
+        """
 
         # step 1: sort the list
         stop_list.sort(key=lambda x: x.distance, reverse=False)
@@ -114,7 +114,7 @@ class StopListDao(BaseDao):
 
 
 class StopDao(BaseDao):
-    ''' Stop data object that is  ready for marshaling into JSON
+    """ Stop data object that is  ready for marshaling into JSON
 
     "stop_id":"7765",
     "name":"SW 6th & Jefferson",
@@ -144,7 +144,7 @@ class StopDao(BaseDao):
     ,
     "routes": [
         {"route_id":1, "name":"1-Vermont", "route_url":"http://trimet.org/schedules/r001.htm", "arrival_url":"http://trimet.org/arrivals/tracker.html?locationID=7765&route=001"}
-    '''
+    """
     def __init__(self, stop, amenities, routes, alerts=None, distance=0.0, order=0, date=None, show_geo=False):
         super(StopDao, self).__init__()
 
@@ -176,8 +176,8 @@ class StopDao(BaseDao):
             tgt['geom'] = cls.orm_to_geojson(src)
 
     def find_route(self, route_id):
-        ''' @return: RouteDao from the list of routes
-        '''
+        """ @return: RouteDao from the list of routes
+        """
         ret_val = None
         if route_id and self.routes:
             for r in self.routes:
@@ -195,8 +195,8 @@ class StopDao(BaseDao):
             self.has_amenities = False
 
     def get_route_short_names(self, stop_orm):
-        ''' add an array of short names to this DAO
-        '''
+        """ add an array of short names to this DAO
+        """
         # step 1: create a short_names list if we haven't already
         if not self.short_names:
             self.short_names = []
@@ -216,11 +216,11 @@ class StopDao(BaseDao):
 
     @classmethod
     def from_stop_orm(cls, stop_orm, distance=0.0, order=0, agency="TODO", detailed=False, show_geo=False, show_alerts=False, date=None):
-        ''' make a StopDao from a stop object and session
+        """ make a StopDao from a stop object and session
 
             note that certain pages only need the simple stop info ... so we can 
             avoid queries of detailed stop info (like routes hitting a stop, alerts, etc...)
-        '''
+        """
         ret_val = None
 
         amenities = []
@@ -280,8 +280,8 @@ class StopDao(BaseDao):
 
     @classmethod
     def from_stop_id(cls, session, stop_id, distance=0.0, agency="TODO", detailed=False, show_geo=False, show_alerts=False, date=None):
-        ''' make a StopDao from a stop_id and session ... and maybe templates
-        '''
+        """ make a StopDao from a stop_id and session ... and maybe templates
+        """
         ret_val = None
         try:
             log.info("query Stop table")
@@ -294,7 +294,7 @@ class StopDao(BaseDao):
 
     @classmethod
     def from_stop_params(cls, session, params):
-        ''' will make a stop based on values set in ott.utils.parse.StopParamParser
-        '''
+        """ will make a stop based on values set in ott.utils.parse.StopParamParser
+        """
         ret_val = cls.from_stop_id(session=session, stop_id=params.stop_id, agency=params.agency, detailed=params.detailed, show_geo=params.show_geo, show_alerts=params.alerts, date=params.date)
         return ret_val
