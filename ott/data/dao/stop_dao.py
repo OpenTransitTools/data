@@ -1,16 +1,16 @@
-import logging
-log = logging.getLogger(__file__)
-
-from sqlalchemy.orm import joinedload, joinedload_all
+from sqlalchemy.orm import joinedload
 
 from ott.utils.dao.base import BaseDao
-from .route_dao  import RouteDao
+from .route_dao import RouteDao
 
 from gtfsdb import Stop
 from gtfsdb import RouteStop
 
 from ott.utils import num_utils
 from ott.utils import transit_utils
+
+import logging
+log = logging.getLogger(__file__)
 
 
 class StopListDao(BaseDao):
@@ -37,7 +37,7 @@ class StopListDao(BaseDao):
             ret_val = StopListDao(stops)
         return ret_val
 
-    """ I THINK THIS METHOD IS WAY BROKEN...
+    ''' I THINK THIS METHOD IS WAY BROKEN...
     @classmethod
     def all_stops(cls, session, agency="TODO", detailed=False, show_alerts=False):
         """ make a StopListDao all stops...
@@ -52,7 +52,7 @@ class StopListDao(BaseDao):
                 stops.append(stop)
             ret_val = StopListDao(stops)
         return ret_val
-    """
+    '''
 
     @classmethod
     def nearest_stops(cls, session, geo_params):
@@ -148,7 +148,7 @@ class StopDao(BaseDao):
     def __init__(self, stop, amenities, routes, alerts=None, distance=0.0, order=0, date=None, show_geo=False):
         super(StopDao, self).__init__()
 
-        #import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         self.copy_basics(self.__dict__, stop, show_geo)
         self.routes = routes
         self.short_names = None
@@ -209,7 +209,7 @@ class StopDao(BaseDao):
 
             # step 3: build the short names list
             for r in routes:
-                sn = {'route_id':r.route_id, 'route_short_name':transit_utils.make_short_name(r)}
+                sn = {'route_id': r.route_id, 'route_short_name': transit_utils.make_short_name(r)}
                 self.short_names.append(sn)
 
         return self.short_names
@@ -268,7 +268,7 @@ class StopDao(BaseDao):
 
     @classmethod
     def query_orm_for_stop(cls, session, stop_id, detailed=False):
-        """simple utility for quering a stop from gtfsdb
+        """ simple utility for quering a stop from gtfsdb
         """
         q = session.query(Stop)
         q = q.filter(Stop.stop_id == stop_id)

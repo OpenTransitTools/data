@@ -1,7 +1,3 @@
-import datetime
-import logging
-log = logging.getLogger(__file__)
-
 from ott.utils.dao.base import BaseDao
 from .stop_dao import StopDao
 from .headsign_dao import StopHeadsignDao
@@ -10,17 +6,21 @@ from ott.utils import date_utils
 
 from gtfsdb import StopTime
 
+import datetime
+import logging
+log = logging.getLogger(__file__)
+
 
 class StopScheduleDao(BaseDao):
-    ''' StopScheduleDao data object is contains all the schedule data at a given stop
-    '''
+    """ StopScheduleDao data object is contains all the schedule data at a given stop
+    """
     def __init__(self, stop, stoptimes, headsigns, alerts=None, route_id=None):
         super(StopScheduleDao, self).__init__()
         self.stop = stop
         self.stoptimes = stoptimes
         self.headsigns = headsigns
         self.set_alerts(alerts)
-        self.single_route_id   = None
+        self.single_route_id = None
         self.single_route_name = None
         r = self.find_route(route_id)
         if r and r.name:
@@ -28,8 +28,8 @@ class StopScheduleDao(BaseDao):
             self.single_route_name = r.name
 
     def find_route(self, route_id):
-        ''' @return: RouteDao from the stop
-        '''
+        """ @return: RouteDao from the stop
+        """
         ret_val = None
         if self.stop:
             ret_val = self.stop.find_route(route_id)
@@ -37,15 +37,15 @@ class StopScheduleDao(BaseDao):
 
     @classmethod
     def get_stop_schedule(cls, session, stop_id, date=None, route_id=None, agency="TODO", detailed=False, show_alerts=False):
-        ''' factory returns full-on schedule DAO for this stop, on this date.  detailed flag gets all meta-data, whereas
+        """ factory returns full-on schedule DAO for this stop, on this date.  detailed flag gets all meta-data, whereas
             show_alerts reduces the queries down to just alerts for this stop (and routes hitting the stop).
-        '''
-        #import pdb; pdb.set_trace()
+        """
+        # import pdb; pdb.set_trace()
         ret_val = None
 
-        headsigns     = {}
-        schedule      = []
-        alerts        = []
+        headsigns = {}
+        schedule = []
+        alerts = []
 
         # step 1: figure out date and time
         now = datetime.datetime.now()
@@ -103,15 +103,15 @@ class StopScheduleDao(BaseDao):
 
     @classmethod
     def get_stop_schedule_from_params(cls, session, params):
-        ''' will make a stop schedule based on values set in ott.utils.parse.StopParamParser 
-        '''
+        """ will make a stop schedule based on values set in ott.utils.parse.StopParamParser 
+        """
         ret_val = cls.get_stop_schedule(session=session, stop_id=params.stop_id, date=params.date, route_id=params.route_id, agency=params.agency, detailed=params.detailed, show_alerts=params.alerts)
         return ret_val
 
     @classmethod
     def make_stop_time(cls, stoptime, headsign_id, now, order):
-        ''' {"t":'12:33am', "h":'headsign_id;, "n":[E|N|L ... where E=Earlier Today, N=Now/Next, L=Later]}
-        '''
+        """ {"t":'12:33am', "h":'headsign_id;, "n":[E|N|L ... where E=Earlier Today, N=Now/Next, L=Later]}
+        """
         time = date_utils.military_to_english_time(stoptime.departure_time)
-        ret_val = {"t":time, "h":headsign_id, "o":order}
+        ret_val = {"t": time, "h": headsign_id, "o": order}
         return ret_val
