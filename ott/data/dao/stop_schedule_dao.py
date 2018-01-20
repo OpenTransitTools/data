@@ -110,7 +110,7 @@ class StopScheduleDao(BaseDao):
 
     @classmethod
     def make_stop_time(cls, stoptime, headsign_id, now, order):
-        """ {"t":'12:33am', "h":'headsign_id;, "n":[E|N|L ... where E=Earlier Today, N=Now/Next, L=Later]}
+        """ {"t": '12:33am', "h":' headsign_id;, "n": [E|N|L ... where E=Earlier Today, N=Now/Next, L=Later]}
         """
         time = date_utils.military_to_english_time(stoptime.departure_time)
         ret_val = {"t": time, "h": headsign_id, "o": order}
