@@ -8,20 +8,13 @@ CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
 requires = [
     'ott.utils',
-    'sqlalchemy',
-    'transaction',
     'gtfsdb',
-    'protobuf',
+    'ott.gtfsdb_realtime',
+    'transaction',
     'simplejson',
     'usaddress', # crfsuite pre-built binaries -- https://github.com/estnltk/estnltk/tree/master/dist/python-crfsuite
     # note: download 'raw' file from github, then use PowerShell to install
 ]
-
-extras_require = dict(
-    dev=[],
-    geo=['geoalchemy2'],
-    postgresql=['psycopg2>=2.4.2'],
-)
 
 #
 # eggs that you need if you're running a version of python lower than 2.7
@@ -45,6 +38,7 @@ setup(
     dependency_links=[
         'git+https://github.com/OpenTransitTools/utils.git#egg=ott.utils-0.1.0',
         'git+https://github.com/OpenTransitTools/gtfsdb.git#egg=gtfsdb-1.0.0',
+        'git+https://github.com/OpenTransitTools/gtfsdb_realtime.git#egg=ott.gtfsdb_realtime-1.0.0',
     ],
     license="Mozilla-derived (http://opentransittools.com)",
     url='http://opentransittools.com',
@@ -53,7 +47,6 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=requires,
-    extras_require=extras_require,
     tests_require=requires,
     test_suite="ott.data.tests",
     entry_points="""\
