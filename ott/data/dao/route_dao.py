@@ -50,7 +50,7 @@ class RouteListDao(BaseDao):
         """ make a list of RouteDao objects by query to the database
         """
         ret_val = None
-        #import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
 
         ### TODO: list of BANNED ROUTES ...
         log.info("query Route table")
@@ -86,8 +86,8 @@ class RouteDao(BaseDao):
         """ add the direction names to route
         """
         # step 0: two direction name vars
-        dir0=None
-        dir1=None
+        dir0 = None
+        dir1 = None
 
         # step 1: figure out what (if any) 'primary' direction names for this route exist in directions '0' and '1'
         try:
