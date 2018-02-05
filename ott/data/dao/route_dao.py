@@ -1,6 +1,3 @@
-import logging
-log = logging.getLogger(__file__)
-
 from ott.utils.dao.base import BaseDao
 from ott.utils import date_utils
 from .alerts_dao import AlertsDao
@@ -10,9 +7,13 @@ from gtfsdb import Route
 try: Route.make_geom_lazy()
 except: pass
 
+import logging
+log = logging.getLogger(__file__)
+
+
 class RouteListDao(BaseDao):
-    ''' List of RouteDao data objects ... both list and RouteDao content ready for marshaling into JSON
-    '''
+    """ List of RouteDao data objects ... both list and RouteDao content ready for marshaling into JSON
+    """
     def __init__(self, routes):
         super(RouteListDao, self).__init__()
         self.routes = routes
@@ -20,8 +21,8 @@ class RouteListDao(BaseDao):
 
     @classmethod
     def active_routes(cls, session, date=None):
-        '''
-        '''
+        """
+        """
         ret_val = []
 
         # step 1: grab all stops
@@ -46,8 +47,8 @@ class RouteListDao(BaseDao):
 
     @classmethod
     def route_list(cls, session, agency="TODO", detailed=False, show_alerts=False, show_geo=False):
-        ''' make a list of RouteDao objects by query to the database
-        '''
+        """ make a list of RouteDao objects by query to the database
+        """
         ret_val = None
         #import pdb; pdb.set_trace()
 
@@ -64,8 +65,8 @@ class RouteListDao(BaseDao):
 
 
 class RouteDao(BaseDao):
-    ''' RouteDao data object ready for marshaling into JSON
-    '''
+    """ RouteDao data object ready for marshaling into JSON
+    """
     def __init__(self, route, alerts, show_geo=False):
         super(RouteDao, self).__init__()
         self.copy(route, show_geo)
@@ -82,8 +83,8 @@ class RouteDao(BaseDao):
             self.geom = self.orm_to_geojson(r)
 
     def add_route_dirs(self, route):
-        ''' add the direction names to route
-        '''
+        """ add the direction names to route
+        """
         # step 0: two direction name vars
         dir0=None
         dir1=None
@@ -119,8 +120,8 @@ class RouteDao(BaseDao):
 
     @classmethod
     def from_route_id(cls, session, route_id, agency="TODO", detailed=False, show_alerts=False, show_geo=False):
-        ''' make a RouteDao from a route_id and session
-        '''
+        """ make a RouteDao from a route_id and session
+        """
         log.info("query Route table")
         route = session.query(Route).filter(Route.route_id == route_id).one()
         return cls.from_route_orm(route, agency=agency, detailed=detailed, show_alerts=show_alerts, show_geo=show_geo)
