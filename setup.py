@@ -6,6 +6,14 @@ here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.md')).read()
 CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
+postgresql_extras = ['psycopg2>=2.4.2']
+dev_extras = []
+
+extras_require = dict(
+    dev=dev_extras,
+    postgresql=postgresql_extras,
+)
+
 requires = [
     'ott.utils',
     'gtfsdb',
@@ -15,12 +23,6 @@ requires = [
     'usaddress', # crfsuite pre-built binaries -- https://github.com/estnltk/estnltk/tree/master/dist/python-crfsuite
     # note: download 'raw' file from github, then use PowerShell to install
 ]
-
-#
-# eggs that you need if you're running a version of python lower than 2.7
-#
-if sys.version_info[:2] < (2, 7):
-    requires.extend(['argparse>=1.2.1', 'unittest2>=0.5.1'])
 
 
 setup(
@@ -47,6 +49,7 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=requires,
+    extras_require=extras_require,
     tests_require=requires,
     test_suite="ott.data.tests",
     entry_points="""\
