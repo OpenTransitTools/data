@@ -3,7 +3,7 @@ import logging
 log = logging.getLogger(__file__)
 
 from ott.utils.dao.base import BaseDao
-from ..gtfsrdb import query
+from ott.gtfsdb_realtime.model.alert_entity import AlertEntity
 from ott.utils import object_utils
 from ott.utils import date_utils
 
@@ -50,7 +50,6 @@ class AlertsDao(BaseDao):
         self.route_ids         = None
 
     def set_dates(self, start_secs, end_secs):
-        #import pdb; pdb.set_trace()
         self.start = date_utils.make_date_from_timestamp(start_secs)
         self.pretty_start_date = date_utils.pretty_date(self.start)
         self.pretty_start_time = date_utils.pretty_time(self.start)
@@ -66,9 +65,9 @@ class AlertsDao(BaseDao):
                 self.pretty_end_date = date_utils.pretty_date(self.end)
                 self.pretty_end_time = date_utils.pretty_time(self.end)
 
-    def init_via_alert(self, session, alert):
-        ''' init this object via this 
-        '''
+    def init_via_alert(self, alert):
+        """ init this object via this 
+        """
         object_utils.update_object(self, src=alert)
         object_utils.update_object(self, src=alert.Alert)
         self.set_dates(alert.Alert.start, alert.Alert.end)
@@ -81,46 +80,36 @@ class AlertsDao(BaseDao):
 
 
     @classmethod
-    def get_route_alerts_via_orm(cls, route):
-        ''' query GTFSrDB, and return a list of AlertResponse objects for the route
-        '''
-        ret_val = []
-        alerts = query.via_route_id(session, route_id, agency_id)
-        for a in alerts:
-            r = AlertsDao()
-            r.init_via_alert(session, a)
-            ret_val.append(r)
-        return ret_val
-
-    @classmethod
-    def get_route_alerts(cls, session, route_id, agency_id='NotUsed-AssumesSingleAgencyAlaTriMet'):
-        ''' query GTFSrDB, and return a list of AlertResponse objects for the route
-        '''
+    def get_route_alerts(cls, session, route_id, agency_id=None):
+        """
+        query GTFSDB-rt and return a list of AlertResponse objects for the route
+        """
         ret_val = []
         try:
-            alerts = query.via_route_id(session, route_id, agency_id)
-
+            # import pdb; pdb.set_trace()
+            alerts = AlertEntity.query_via_route_id(session, route_id, agency_id)
             for a in alerts:
                 r = AlertsDao()
-                r.init_via_alert(session, a)
+                r.init_via_alert(a)
                 ret_val.append(r)
             if len(ret_val) > 0:
                 ret_val.sort(key=lambda x: x.start, reverse=False)
-        except Exception, e:
+        except Exception as e:
             log.warn(e)
         return ret_val
 
     @classmethod
     def get_stop_alerts(cls, session, stop_id, agency_id='NotUsed-AssumesSingleAgencyAlaTriMet'):
-        ''' query GTFSrDB, and return a list of AlertResponse objects for this stop id
-        '''
+        """
+        query GTFSDB-rt and return a list of AlertResponse objects for this stop id
+        """
         ret_val = []
         try:
             alerts = query.via_stop_id(session, stop_id, agency_id)
             for a in alerts:
                 r = AlertsDao()
-                r.init_via_alert(session, a)
+                r.init_via_alert(a)
                 ret_val.append(r)
-        except Exception, e:
+        except Exception as e:
             log.warn(e)
         return ret_val
