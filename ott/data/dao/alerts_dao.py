@@ -65,19 +65,35 @@ class AlertsDao(BaseDao):
                 self.pretty_end_date = date_utils.pretty_date(self.end)
                 self.pretty_end_time = date_utils.pretty_time(self.end)
 
-    def init_via_alert(self, alert):
+    def init_via_alert(self, alert_entity):
         """ init this object via this 
         """
-        object_utils.update_object(self, src=alert)
-        object_utils.update_object(self, src=alert.Alert)
-        self.set_dates(alert.Alert.start, alert.Alert.end)
+        object_utils.update_object(self, src=alert_entity)
+        object_utils.update_object(self, src=alert_entity.alert)
+        self.set_dates(alert_entity.alert.start, alert_entity.alert.end)
 
-        # TODO: trimet hack (eliminate me)
-        if "trimet.org" in self.url:
-            self.url = "http://trimet.org/#alerts/"
-            if self.route_id:
-                self.url = "{0}{1}".format(self.url, self.route_id)
+        # url error checking
+        if "http" not in self.url or "://" not in self.url:
+            log.warn("alerts: removing 'problematic' url '{}' from response".format(self.url))
+            self.url = None
 
+    @classmethod
+    def make_daos_via_alert_list(cls, alert_entity_list, results=[], reverse_sort=True):
+        """ factory to create an AlertDao (service object) from AlertEntity of gtfsdb_realtime object """
+        # step 1: new list and/or (optionally) appended list of results
+        ret_val = results
+
+        # step 2: create new dao's from our alert list
+        for ae in alert_entity_list:
+            dao = cls()
+            dao.init_via_alert(ae)
+            ret_val.append(dao)
+
+        # step 3: sort the lot
+        if len(ret_val) > 0:
+            ret_val.sort(key=lambda x: x.start, reverse=reverse_sort)
+
+        return ret_val
 
     @classmethod
     def get_route_alerts(cls, session, route_id, agency_id=None):
@@ -86,30 +102,22 @@ class AlertsDao(BaseDao):
         """
         ret_val = []
         try:
-            # import pdb; pdb.set_trace()
-            alerts = AlertEntity.query_via_route_id(session, route_id, agency_id)
-            for a in alerts:
-                r = AlertsDao()
-                r.init_via_alert(a)
-                ret_val.append(r)
-            if len(ret_val) > 0:
-                ret_val.sort(key=lambda x: x.start, reverse=False)
+            #import pdb; pdb.set_trace()
+            alert_entity_list = AlertEntity.query_via_route_id(session, route_id, agency_id)
+            ret_val = AlertsDao.make_daos_via_alert_list(alert_entity_list)
         except Exception as e:
             log.warn(e)
         return ret_val
 
     @classmethod
-    def get_stop_alerts(cls, session, stop_id, agency_id='NotUsed-AssumesSingleAgencyAlaTriMet'):
+    def get_stop_alerts(cls, session, stop_id, agency_id=None):
         """
         query GTFSDB-rt and return a list of AlertResponse objects for this stop id
         """
         ret_val = []
         try:
-            alerts = query.via_stop_id(session, stop_id, agency_id)
-            for a in alerts:
-                r = AlertsDao()
-                r.init_via_alert(a)
-                ret_val.append(r)
+            alert_entity_list = AlertEntity.query_via_stop_id(session, stop_id, agency_id)
+            ret_val = AlertsDao.make_daos_via_alert_list(alert_entity_list)
         except Exception as e:
             log.warn(e)
         return ret_val
