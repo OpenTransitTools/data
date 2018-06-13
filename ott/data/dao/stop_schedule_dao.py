@@ -40,7 +40,6 @@ class StopScheduleDao(BaseDao):
         """ factory returns full-on schedule DAO for this stop, on this date.  detailed flag gets all meta-data, whereas
             show_alerts reduces the queries down to just alerts for this stop (and routes hitting the stop).
         """
-        # import pdb; pdb.set_trace()
         ret_val = None
 
         headsigns = {}
@@ -64,9 +63,11 @@ class StopScheduleDao(BaseDao):
             else:
                 stop_times = StopTime.get_departure_schedule(session, stop_id, date)
 
+        # import pdb; pdb.set_trace()
+
         # step 4: loop through our queried stop times
         for i, st in enumerate(stop_times):
-            if st.is_boarding_stop():
+            if st.is_boarding_stop(): # IMPORTANT todo: is this where we're broken on some stops ???
 
                 # 4b: only once, capture the route's different headsigns shown at this stop
                 #     (e.g., a given route can have multiple headsignss show at this stop)
