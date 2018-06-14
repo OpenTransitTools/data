@@ -78,10 +78,14 @@ class AlertsDao(BaseDao):
             self.url = None
 
     @classmethod
-    def make_daos_via_alert_list(cls, alert_entity_list, results=[], reverse_sort=True):
+    def make_daos_via_alert_list(cls, alert_entity_list, results=None, reverse_sort=True):
         """ factory to create an AlertDao (service object) from AlertEntity of gtfsdb_realtime object """
         # step 1: new list and/or (optionally) appended list of results
         ret_val = results
+        if ret_val is None:
+            ret_val = []
+
+        # import pdb; pdb.set_trace()
 
         # step 2: create new dao's from our alert list
         for ae in alert_entity_list:
@@ -102,7 +106,6 @@ class AlertsDao(BaseDao):
         """
         ret_val = []
         try:
-            #import pdb; pdb.set_trace()
             alert_entity_list = AlertEntity.query_via_route_id(session, route_id, agency_id)
             ret_val = AlertsDao.make_daos_via_alert_list(alert_entity_list)
         except Exception as e:

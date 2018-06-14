@@ -63,8 +63,6 @@ class StopScheduleDao(BaseDao):
             else:
                 stop_times = StopTime.get_departure_schedule(session, stop_id, date)
 
-        # import pdb; pdb.set_trace()
-
         # step 4: loop through our queried stop times
         for i, st in enumerate(stop_times):
             if st.is_boarding_stop(): # IMPORTANT todo: is this where we're broken on some stops ???
@@ -84,6 +82,7 @@ class StopScheduleDao(BaseDao):
                         r = stop.find_route(h.route_id)
                         if r and r.alerts and len(r.alerts) > 0:
                             h.has_alerts = True
+
                             # add the route to an array
                             if h.route_id not in alerts:
                                 alerts.append(h.route_id)
