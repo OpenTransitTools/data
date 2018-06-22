@@ -1,19 +1,20 @@
 from datetime import datetime
 from datetime import timedelta
-import logging
-log = logging.getLogger(__file__)
 
 from ott.utils import object_utils
 from ott.utils import json_utils
 from ott.utils import html_utils
 
+import logging
+log = logging.getLogger(__file__)
+
 
 class Adverts(object):
-    ''' Example content: http://trimet.org/map/adverts/
-    '''
+    """ Example content: http://trimet.org/map/adverts/
+    """
     def __init__(self, advert_url, timeout_mins=30):
-        '''
-        '''
+        """
+        """
         log.info("create an instance of {0}".format(self.__class__.__name__))
         self.advert_url = advert_url
         if timeout_mins:
@@ -22,12 +23,12 @@ class Adverts(object):
             self.avert_timeout = 30
         self.last_update = datetime.now() - timedelta(minutes = (self.avert_timeout+10))
         self.safe_content = None
-        self.content = {'rail':{}, 'bus':{}}
+        self.content = {'rail': {}, 'bus': {}}
         self.update()
 
     def update(self):
-        ''' update content...
-        '''
+        """ update content...
+        """
         try:
             if datetime.now() - self.last_update > timedelta(minutes = self.avert_timeout):
                 log.debug("updating the advert content")
@@ -38,18 +39,18 @@ class Adverts(object):
                 self.content['bus']['es']  = json_utils.stream_json(self.advert_url,  extra_path='adverts_bus_es.json')
                 if self.content['rail']['en']:
                     self.safe_content = self.content['rail']['en']
-        except Exception, e:
+        except Exception as e:
             log.warn("couldn't update the advert content: {}".format(e))
 
     def query(self, mode="rail", lang="en"):
-        ''' 
-        '''
+        """ 
+        """
         ret_val = self.safe_content
         try:
             self.update()
             m = mode if object_utils.has_content(mode) else 'rail'
             ret_val = self.content[m][lang]
-        except:
+        except Exception as e:
             log.warn("no advert content for mode={0}, lang={1}".format(mode, lang))
         return ret_val 
 

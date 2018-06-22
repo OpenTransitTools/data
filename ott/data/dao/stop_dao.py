@@ -20,7 +20,7 @@ class StopListDao(BaseDao):
         super(StopListDao, self).__init__()
         self.stops = stops
         self.count = len(stops)
-        self.name  = name
+        self.name = name
 
     @classmethod
     def from_routestops_orm(cls, route_stops, agency="TODO", detailed=False, show_geo=False, show_alerts=False, active_stops_only=True):
@@ -164,7 +164,7 @@ class StopDao(BaseDao):
         tgt['name'] = src.stop_name
         tgt['description'] = src.stop_desc
         tgt['url'] = getattr(src, 'stop_url', None)
-        if src.direction == ''  or src.direction == None:
+        if src.direction == '' or src.direction == None:
             tgt['direction'] = ''
         else:
             tgt['direction'] = "{0}bound".format(src.direction.capitalize())
@@ -244,12 +244,12 @@ class StopDao(BaseDao):
                 # step 3b: build the route object for the stop's route (could be detailed and with alerts)
                 try:
                     rs = RouteDao.from_route_orm(route=r, agency=agency, detailed=detailed, show_alerts=show_alerts)
-                except Exception, e:
+                except Exception as e:
                     log.info(e)
                     # step 3c: we got an error above, so let's try to get minimal route information
                     try:
                         rs = RouteDao.from_route_orm(route=r)
-                    except Exception, e:
+                    except Exception as e:
                         log.info(e)
                         log.info("couldn't get route information")
 
@@ -287,7 +287,7 @@ class StopDao(BaseDao):
             log.info("query Stop table")
             stop = cls.query_orm_for_stop(session, stop_id, detailed)
             ret_val = cls.from_stop_orm(stop_orm=stop, distance=distance, agency=agency, detailed=detailed, show_geo=show_geo, show_alerts=show_alerts, date=date)
-        except Exception, e:
+        except Exception as e:
             log.info(e)
 
         return ret_val

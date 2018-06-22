@@ -9,8 +9,8 @@ log = logging.getLogger(__file__)
 class Base(object):
 
     def __init__(self, url, timeout_mins=None):
-        '''
-        '''
+        """
+        """
         log.info("create an instance of {0}".format(self.__class__.__name__))
         self.url = url
         self.content = None
@@ -30,18 +30,18 @@ class Base(object):
                 c = json_utils.stream_json(self.url)
                 if c is not None:
                     self.content = c
-        except Exception, e:
+        except Exception as e:
             log.warn("couldn't update the fare content: {}".format(e))
 
     def query(self, def_val=None):
-        ''' 
-        '''
+        """ 
+        """
         ret_val = def_val
         try:
             self.update()
             if self.content is not None:
                 ret_val = self.content
-        except Exception, e:
+        except Exception as e:
             log.warn("content query error: {}".format(e))
         return ret_val
 

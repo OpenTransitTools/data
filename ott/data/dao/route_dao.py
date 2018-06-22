@@ -113,7 +113,7 @@ class RouteDao(BaseDao):
         try:
             if show_alerts:
                 alerts = AlertsDao.get_route_alerts(object_session(route), route.route_id)
-        except Exception, e:
+        except Exception as e:
             log.warn(e)
         ret_val = RouteDao(route, alerts, show_geo)
         return ret_val
