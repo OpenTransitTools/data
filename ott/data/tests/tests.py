@@ -26,5 +26,5 @@ class TestStuff(unittest.TestCase):
 
     def test_cancelled_routes(self):
         f = CancelledRoutes("http://dev.trimet.org/map/cancelled_routes.json")
-        print f
+        print(f)
         self.assertGreaterEqual(f.content, 2)
