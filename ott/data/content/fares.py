@@ -1,15 +1,17 @@
 from datetime import datetime
 from datetime import timedelta
+
+from ott.utils import json_utils
+
 import logging
 log = logging.getLogger(__file__)
 
-from ott.utils import json_utils
 
 class Fares(object):
 
     def __init__(self, fare_url, fare_timeout_mins=1440):
-        '''
-        '''
+        """
+        """
         log.info("create an instance of {0}".format(self.__class__.__name__))
         self.fare_url = fare_url
         if fare_timeout_mins:
@@ -17,7 +19,7 @@ class Fares(object):
         else:
             self.fare_timeout = 1440
 
-        self.last_update = datetime.now() - timedelta(minutes = (self.fare_timeout+10))
+        self.last_update = datetime.now() - timedelta(minutes=(self.fare_timeout+10))
         self.content = []
         self.update()
 
@@ -30,13 +32,13 @@ class Fares(object):
                 self.last_update = datetime.now()
                 c = json_utils.stream_json(self.fare_url)
                 if c:
-                    self.content = c 
-        except Exception, e:
+                    self.content = c
+        except Exception as e:
             log.warn("couldn't update the fare content: {}".format(e))
  
     def query(self, fare_type="adult", def_val=None):
-        ''' 
-        '''
+        """ 
+        """
         #import pdb; pdb.set_trace()
         ret_val = def_val
         try:
@@ -45,7 +47,6 @@ class Fares(object):
                 if fare_type in c:
                     ret_val = c[fare_type]
                     break
-        except:
+        except Exception as e:
             log.warn("no fare content for fare_type={0}, using default fare of {1}".format(fare_type, def_val))
         return ret_val
-
