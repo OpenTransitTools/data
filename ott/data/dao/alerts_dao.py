@@ -3,7 +3,7 @@ import logging
 log = logging.getLogger(__file__)
 
 from ott.utils.dao.base import BaseDao
-from ott.gtfsdb_realtime.model.alert_entity import AlertEntity
+from ott.gtfsdb_realtime.control.alert_queries import AlertQueries
 from ott.utils import object_utils
 from ott.utils import date_utils
 
@@ -80,12 +80,12 @@ class AlertsDao(BaseDao):
     @classmethod
     def make_daos_via_alert_list(cls, alert_entity_list, results=None, reverse_sort=True):
         """ factory to create an AlertDao (service object) from AlertEntity of gtfsdb_realtime object """
+        # import pdb; pdb.set_trace()
+
         # step 1: new list and/or (optionally) appended list of results
         ret_val = results
         if ret_val is None:
             ret_val = []
-
-        # import pdb; pdb.set_trace()
 
         # step 2: create new dao's from our alert list
         for ae in alert_entity_list:
@@ -106,7 +106,7 @@ class AlertsDao(BaseDao):
         """
         ret_val = []
         try:
-            alert_entity_list = AlertEntity.query_via_route_id(session, route_id, agency_id)
+            alert_entity_list = AlertQueries.query_via_route_id(session, route_id, agency_id)
             ret_val = AlertsDao.make_daos_via_alert_list(alert_entity_list)
         except Exception as e:
             log.warn(e)
@@ -119,7 +119,7 @@ class AlertsDao(BaseDao):
         """
         ret_val = []
         try:
-            alert_entity_list = AlertEntity.query_via_stop_id(session, stop_id, agency_id)
+            alert_entity_list = AlertQueries.query_via_stop_id(session, stop_id, agency_id)
             ret_val = AlertsDao.make_daos_via_alert_list(alert_entity_list)
         except Exception as e:
             log.warn(e)
