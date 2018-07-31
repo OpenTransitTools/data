@@ -22,6 +22,9 @@ class RouteListDao(BaseDao):
     @classmethod
     def active_routes(cls, session, date=None):
         """
+        find route list from gtfsdb based on input date (default is server date)
+        todo: move this to Routes into gtfsdb
+        todo: doesn't work if a schedule has a doughnut hole, and a route (short-term cancelled) is not be active for a period of time
         """
         ret_val = []
 
@@ -33,14 +36,20 @@ class RouteListDao(BaseDao):
         if date:
             for r in routes:
                 if r:
-                    # step 3: filter based on date (if invalid looking date objects, just pass the route on)
-                    if r.start_date and r.end_date:
-                        if r.start_date <= date <= r.end_date:
+                    # step 3: filter based on begin and/or end dates
+                    if r.start_date or r.end_date:
+                        if r.start_date and r.end_date:
+                            if r.start_date <= date <= r.end_date:
+                                ret_val.append(r)
+                        elif r.start_date and r.start_date <= date:
+                            ret_val.append(r)
+                        elif r.end_date and date <= r.end_date:
                             ret_val.append(r)
                     else:
+                        # invalid Route. dates; can't determine active status, so just pass the route as 'active'
                         ret_val.append(r)
         else:
-            # step 2': if no good date, just assign routes to ret_val
+            # step 2': if no good input (default) date, just assign pull all routes into ret_val
             ret_val = routes
 
         return ret_val
