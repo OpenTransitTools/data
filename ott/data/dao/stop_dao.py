@@ -274,6 +274,22 @@ class StopDao(BaseDao):
         return self.short_names
 
     @classmethod
+    def make_short_names(cls, stop_orm):
+        """
+        get route sort names serving this stop
+        :param stop_orm:
+        :return list of short names:
+        TODO: move to Stop in gtfsdb
+        """
+        ret_val = []
+        routes = RouteStop.active_unique_routes_at_stop(stop_orm.session, stop_id=stop_orm.stop_id)
+        routes.sort(key=lambda x: x.route_sort_order, reverse=False)
+        for r in routes:
+            sn = {'route_id': r.route_id, 'route_short_name': transit_utils.make_short_name(r)}
+            ret_val.append(sn)
+        return ret_val
+
+    @classmethod
     def from_stop_orm(cls, stop_orm, distance=0.0, order=0, agency="TODO", detailed=False, show_geo=False, show_alerts=False, date=None):
         """ make a StopDao from a stop object and session
 
