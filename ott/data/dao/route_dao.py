@@ -27,17 +27,28 @@ class RouteListDao(BaseDao):
         todo: doesn't work if a schedule has a doughnut hole, and a route (short-term cancelled) is not be active for a period of time
         todo: use agency_id in query
         """
-        ret_val = []
-
         # step 1: grab all stops
         routes = session.query(Route).order_by(Route.route_sort_order).all()
 
-        # step 2: filter by date
+        # step 2: filter dates based on date
+        ret_val = cls.filter_active_routes(routes, date)
+
+        return ret_val
+
+    @classmethod
+    def filter_active_routes(cls, routes, date=None):
+        """ filter the list of gtfsdb routes from the database based on date
+            todo: move this to Routes into gtfsdb
+        """
+        # import pdb; pdb.set_trace()
+        ret_val = []
+
+        # step 1: get a valid date
         date = date_utils.str_to_date(date)
         if date:
             for r in routes:
                 if r:
-                    # step 3: filter based on begin and/or end dates
+                    # step 2a: filter based on begin and/or end dates
                     if r.start_date or r.end_date:
                         if r.start_date and r.end_date:
                             if r.start_date <= date <= r.end_date:
@@ -50,7 +61,7 @@ class RouteListDao(BaseDao):
                         # invalid Route. dates; can't determine active status, so just pass the route as 'active'
                         ret_val.append(r)
         else:
-            # step 2': if no good input (default) date, just assign pull all routes into ret_val
+            # step 2b: if no good input (default) date, just assign pull all routes into ret_val
             ret_val = routes
 
         return ret_val
@@ -60,7 +71,6 @@ class RouteListDao(BaseDao):
         """ make a list of RouteDao objects by query to the database
         """
         ret_val = None
-        # import pdb; pdb.set_trace()
 
         ### TODO: list of BANNED ROUTES ...
         log.info("query Route table")
