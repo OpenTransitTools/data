@@ -20,11 +20,12 @@ class RouteListDao(BaseDao):
         self.count = len(routes)
 
     @classmethod
-    def active_routes(cls, session, date=None):
+    def active_routes(cls, session, agency_id=None, date=None):
         """
         find route list from gtfsdb based on input date (default is server date)
         todo: move this to Routes into gtfsdb
         todo: doesn't work if a schedule has a doughnut hole, and a route (short-term cancelled) is not be active for a period of time
+        todo: use agency_id in query
         """
         ret_val = []
 
