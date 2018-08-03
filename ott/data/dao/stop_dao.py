@@ -55,27 +55,86 @@ class StopListDao(BaseDao):
     '''
 
     @classmethod
-    def nearest_stops(cls, session, geo_params):
-        """ make a StopListDao based on a route_stops object
-            @params: lon, lat, limit=10, name=None, agency="TODO", detailed=False): 
+    def query_nearest_stops(cls, session, geojson_point, radius=None, limit=10, is_active=True):
+        """
+        query gtfsdb for as-the-crow-flies nearest stops ... not accurate around barriers like rivers, highways, etc...
+        :params db session, POINT(x,y), limit=10:
         """
         # import pdb; pdb.set_trace()
 
-        # step 1: make POINT(x,y)
+        # step 1: query database via geo routines for N of stops cloesst to the POINT
+        #         note we grab 10 extra in the /Q, because some stops might not be active (no routes)
+        #         thus we filter them below
+        log.info("query gtfsdb Stop table")
+        q = session.query(Stop)
+        q = q.filter(Stop.location_type == 0)
+        # if radius and float(radius):
+        #     q = q.filter-by distance todo: either here or below?
+        q = q.order_by(Stop.geom.distance_centroid(geojson_point))
+        q = q.limit(limit + 10)
+        stop_list = q.all()
+
+        # step 2: filter stops
+        distance_filtered = False
+        ret_val = []
+        for s in stop_list:
+            # step 2a: filter stops w/out any routes assigned (stop should have active routes)
+            if is_active and len(s.routes) < 1:
+                continue
+
+            # step 2b: stop if we have enough stops to return
+            if len(ret_val) >= limit:
+                break
+
+            # step 2c: radius / distance filter
+            # todo: this not working right now (note len routes is filter above)
+            # todo: should this be part of query see above
+            if radius and len(s.routes) < 1:
+                distance_filtered = True
+                continue
+
+            # step 2d: passed all filters, so add to our return list
+            ret_val.append(s)
+
+        # step 3: cleanup ... if we didn't get enough stops,
+        if not distance_filtered and len(ret_val) < limit:
+            for s in stop_list:
+                if s not in ret_val:
+                    ret_val.append(s)
+
+                if len(ret_val) >= limit:
+                    break
+
+        return ret_val
+
+    @classmethod
+    def nearest_stops(cls, session, geo_params):
+        """ make a StopListDao based on a route_stops object
+            @params: lon, lat, limit=10, name=None, agency="TODO", detailed=False):
+        """
+        # import pdb; pdb.set_trace()
+
+        # step 1: make POINT(x,y) / get desired limit number of stops
         point = geo_params.to_point_srid()
+        limit = int(geo_params.limit)
+
+        # TODO replace step 2 with this below.... really, replace this with otp_client_py nearest stops
+        # step 2: query for N of stops cloesst to the POINT
+        # stops = cls.query_otp_nearest_stops(point, limit)
 
         # step 2: query database via geo routines for N of stops cloesst to the POINT
         #         note we grab 10 extra in the /Q, because some stops might not be active (no routes), thus we filter them below
         log.info("query Stop table")
-        limit = int(geo_params.limit)
         q = session.query(Stop)
         q = q.filter(Stop.location_type == 0)
         q = q.order_by(Stop.geom.distance_centroid(point))
         q = q.limit(limit + 10)
+        stops_list = q
 
         # step 3a: loop thru nearest N stops
         stops = []
-        for s in q:
+        for s in stops_list:
+            # todo remove steps 3a and 3d ... see above
             # step 3a: make sure this stop has routes assigned
             if len(s.routes) < 1:
                 continue
