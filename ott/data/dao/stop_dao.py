@@ -143,7 +143,7 @@ class StopListDao(BaseDao):
                 break
 
             if s not in filtered_list:
-                filtered_list:.append(s)
+                filtered_list.append(s)
 
 
     @classmethod
