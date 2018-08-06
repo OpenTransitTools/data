@@ -116,7 +116,7 @@ class StopListDao(BaseDao):
         log.info("query gtfsdb Stop table")
         q = session.query(Stop)
         q = q.filter(Stop.location_type == 0)  # just stops (not stations or entrances to stations)
-        q = q.filter(Stop.geom.within(geojson_bbox))
+        q = q.filter(Stop.geom.ST_Within(geojson_bbox))
         q = q.limit(limit)
         stop_list = q.all()
 
