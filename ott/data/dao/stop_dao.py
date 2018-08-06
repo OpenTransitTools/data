@@ -67,7 +67,7 @@ class StopListDao(BaseDao):
         #         thus we filter them below
         log.info("query gtfsdb Stop table")
         q = session.query(Stop)
-        q = q.filter(Stop.location_type == 0)
+        q = q.filter(Stop.location_type == 0)  # just stops (not stations or entrances to stations)
         # if radius and float(radius):
         #     q = q.filter-by distance todo: either here or below?
         q = q.order_by(Stop.geom.distance_centroid(geojson_point))
@@ -96,16 +96,55 @@ class StopListDao(BaseDao):
             # step 2d: passed all filters, so add to our return list
             ret_val.append(s)
 
-        # step 3: cleanup ... if we didn't get enough stops,
+        # step 3: cleanup ... if we didn't get enough stops, maybe add some (non-active) stops back
         if not distance_filtered and len(ret_val) < limit:
-            for s in stop_list:
-                if s not in ret_val:
-                    ret_val.append(s)
-
-                if len(ret_val) >= limit:
-                    break
+            cls._add_back_stops(cls, stop_list, ret_val)
 
         return ret_val
+
+    @classmethod
+    def query_bbox_stops(cls, session, geojson_bbox, limit=1000, is_active=True):
+        """
+        query gtfsdb for as-the-crow-flies nearest stops ... not accurate around barriers like rivers, highways, etc...
+        :params db session, POINT(x,y), limit=10:
+        """
+        # import pdb; pdb.set_trace()
+
+        # step 1: query database via geo routines for stops within
+        #         note we grab 10 extra in the /Q, because some stops might not be active (no routes)
+        #         thus we filter them below
+        log.info("query gtfsdb Stop table")
+        q = session.query(Stop)
+        q = q.filter(Stop.location_type == 0)  # just stops (not stations or entrances to stations)
+        q = q.filter(Stop.geom.within(geojson_bbox))
+        q = q.limit(limit)
+        stop_list = q.all()
+
+        # step 2: filter stops
+        ret_val = []
+        for s in stop_list:
+            # step 2a: filter stops w/out any routes assigned (stop should have active routes)
+            if is_active and len(s.routes) < 1:
+                continue
+
+            # step 2b: stop if we have enough stops to return
+            if len(ret_val) >= limit:
+                break
+
+            # step 2c: passed all filters, so add to our return list
+            ret_val.append(s)
+
+        return ret_val
+
+    @classmethod
+    def _add_back_stops(cls, all_stop_list, filtered_list, limit=7):
+        for s in all_stop_list:
+            if len(filtered_list) >= limit:
+                break
+
+            if s not in filtered_list:
+                filtered_list:.append(s)
+
 
     @classmethod
     def nearest_stops(cls, session, geo_params):
