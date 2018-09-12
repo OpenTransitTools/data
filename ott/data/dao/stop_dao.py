@@ -381,16 +381,21 @@ class StopDao(BaseDao):
         return ret_val
 
     @classmethod
-    def query_orm_for_stop(cls, session, stop_id, detailed=False):
+    def query_orm_for_stop(cls, session, stop_id, detailed=False, agency=None):  # TODO clean up params (make sure detailed is not 3rd param in callers)
         """ simple utility for quering a stop from gtfsdb
         """
-        q = session.query(Stop)
-        q = q.filter(Stop.stop_id == stop_id)
-        if detailed:
-            q = q.options(joinedload("stop_features"))
-            pass
-        stop_orm = q.one()
-        return stop_orm
+        ret_val = None
+        try:
+            log.info("query Stop for {}".format(stop_id))
+            q = session.query(Stop)
+            q = q.filter(Stop.stop_id == stop_id)
+            # TODO q.filter(Stop.agency_id == agency_id)
+            if detailed:
+                q = q.options(joinedload("stop_features"))
+            ret_val = q.one()
+        except Exception as e:
+            log.info(e)
+        return ret_val
 
     @classmethod
     def from_stop_id(cls, session, stop_id, distance=0.0, agency="TODO", detailed=False, show_geo=False, show_alerts=False, date=None):
