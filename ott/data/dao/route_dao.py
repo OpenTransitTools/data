@@ -147,3 +147,12 @@ class CurrentRoutesListDao(RouteListDao):
         except:
             ret_val = super(CurrentRoutesListDao, cls)._active_routes(session, agency_id, date)
         return ret_val
+
+
+def main():
+    
+    pass
+
+
+if __name__ == '__main__':
+    main()

@@ -7,6 +7,18 @@ here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.md')).read()
 CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
+
+requires = [
+    'gtfsdb',
+    'ott.utils',
+    'ott.gtfsdb_realtime',
+    'transaction',
+    'simplejson',
+    'usaddress', # crfsuite pre-built binaries -- https://github.com/estnltk/estnltk/tree/master/dist/python-crfsuite
+    # note: download 'raw' file from github, then use PowerShell to install
+]
+
+
 postgresql_extras = ['psycopg2>=2.4.2']
 dev_extras = []
 
@@ -14,16 +26,6 @@ extras_require = dict(
     dev=dev_extras,
     postgresql=postgresql_extras,
 )
-
-requires = [
-    'ott.utils',
-    'gtfsdb',
-    'ott.gtfsdb_realtime',
-    'transaction',
-    'simplejson',
-    'usaddress', # crfsuite pre-built binaries -- https://github.com/estnltk/estnltk/tree/master/dist/python-crfsuite
-    # note: download 'raw' file from github, then use PowerShell to install
-]
 
 
 setup(
@@ -55,7 +57,6 @@ setup(
     test_suite="ott.data.tests",
     entry_points="""\
         [console_scripts]
-        load_rt = ott.data.gtfsrdb.gtfsrdb:main
-        test_main = ott.data.tests.main:main
+        data_test_routes = ott.data.dao.route_dao:main
     """,
 )
