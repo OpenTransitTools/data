@@ -1,12 +1,14 @@
 from ott.utils.dao.base import BaseDao
+from ott.utils import file_utils
 from ott.utils import date_utils
 from .alerts_dao import AlertsDao
 
 from sqlalchemy.orm import object_session
-from gtfsdb import Route, CurrentRoutes
+from gtfsdb import Route, CurrentRoutes, util
 try: Route.make_geom_lazy()
 except: pass
 
+import os
 import logging
 log = logging.getLogger(__file__)
 
@@ -150,8 +152,14 @@ class CurrentRoutesListDao(RouteListDao):
 
 
 def main():
-    
-    pass
+    dir = file_utils.get_module_dir(CurrentRoutesListDao)
+    gtfs_file = os.path.join(dir, '..', 'test', 'multi-date-feed.zip')
+    url = util.make_temp_sqlite_db_uri('curr')
+    db = database_load(gtfs_file, url=url, current_tables=True)
+
+    c = CurrentRoutesListDao(db.session)
+    for r in c.route_list():
+        print(r)
 
 
 if __name__ == '__main__':
