@@ -143,22 +143,22 @@ class CurrentRoutesListDao(RouteListDao):
 
     @classmethod
     def _active_routes(cls, session, agency_id=None, date=None):
-        # import pdb; pdb.set_trace()
+        import pdb; pdb.set_trace()
         try:
-            ret_val = CurrentRoutes.query_routes()
+            ret_val = CurrentRoutes.query_routes(session)
         except:
-            ret_val = super(CurrentRoutesListDao, cls)._active_routes(session, agency_id, date)
+            ret_val = super(CurrentRoutesListDao, cls)._active_routes(session, date)
         return ret_val
 
 
 def main():
+    from gtfsdb import api
     dir = file_utils.get_module_dir(CurrentRoutesListDao)
     gtfs_file = os.path.join(dir, '..', 'test', 'multi-date-feed.zip')
     url = util.make_temp_sqlite_db_uri('curr')
-    db = database_load(gtfs_file, url=url, current_tables=True)
+    db = api.database_load(gtfs_file, url=url, current_tables=True)
 
-    c = CurrentRoutesListDao(db.session)
-    for r in c.route_list():
+    for r in CurrentRoutesListDao.route_list(db.session()):
         print(r)
 
 
