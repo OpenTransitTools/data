@@ -143,7 +143,7 @@ class CurrentRoutesListDao(RouteListDao):
 
     @classmethod
     def _active_routes(cls, session, agency_id=None, date=None):
-        import pdb; pdb.set_trace()
+        #import pdb; pdb.set_trace()
         try:
             ret_val = CurrentRoutes.query_routes(session)
         except:
@@ -154,11 +154,16 @@ class CurrentRoutesListDao(RouteListDao):
 def main():
     from gtfsdb import api
     dir = file_utils.get_module_dir(CurrentRoutesListDao)
-    gtfs_file = os.path.join(dir, '..', 'test', 'multi-date-feed.zip')
+    gtfs_file = os.path.join(dir, '..', 'tests', 'multi-date-feed.zip')
+    gtfs_file = gtfs_file.replace('c:\\', '/').replace('\\', '/')
+    gtfs_file = "file://{0}".format(gtfs_file)
+    gtfs_file = gtfs_file.replace('\\', '/')
+
     url = util.make_temp_sqlite_db_uri('curr')
     db = api.database_load(gtfs_file, url=url, current_tables=True)
 
-    for r in CurrentRoutesListDao.route_list(db.session()):
+    dao = CurrentRoutesListDao.route_list(db.session)
+    for r in dao.routes:
         print(r)
 
 
