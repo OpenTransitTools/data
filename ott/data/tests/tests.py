@@ -2,7 +2,7 @@ import os
 import unittest
 
 from ott.data.dao.route_dao import CurrentRoutesListDao
-#from ott.data.dao.route_dao import CurrentSDao
+from ott.data.dao.stop_dao import CurrentStopsListDao
 
 
 DB = None
@@ -43,7 +43,10 @@ class TestStuff(unittest.TestCase):
         self.assertTrue(dao.routes[1].route_id in ('NEW', 'ALWAYS'))
 
     def test_current_stops(self):
-        dao = CurrentRoutesListDao.route_list(self.db.session)
-        self.assertTrue(len(dao.routes) == 2)
-        self.assertTrue(dao.routes[0].route_id in ('NEW', 'ALWAYS'))
-        self.assertTrue(dao.routes[1].route_id in ('NEW', 'ALWAYS'))
+        dao = CurrentStopsListDao.all_stops(self.db.session)
+        for s in dao.stops:
+            print(s)
+
+        self.assertTrue(len(dao.stops) == 7)
+        #self.assertTrue(dao.routes[0].route_id in ('NEW', 'ALWAYS'))
+        #self.assertTrue(dao.routes[1].route_id in ('NEW', 'ALWAYS'))
