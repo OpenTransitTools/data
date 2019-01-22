@@ -45,7 +45,7 @@ class TestStuff(unittest.TestCase):
     def test_current_stops(self):
         dao = CurrentStopsListDao.all_stops(self.db.session)
         for s in dao.stops:
-            print(s)
+            print(s.__dict__)
 
         self.assertTrue(len(dao.stops) == 7)
         #self.assertTrue(dao.routes[0].route_id in ('NEW', 'ALWAYS'))
